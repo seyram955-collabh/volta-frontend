@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0f1e">
+<title>Volta Emergency</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="volta-auth.js"></script>
+<style>
+:root {
+  --bg:       #0a0f1e;
+  --surface:  #111827;
+  --card:     #1a2235;
+  --border:   rgba(255,255,255,0.07);
+  --cyan:     #00d4ff;
+  --teal:     #00b89c;
+  --red:      #ff3b3b;
+  --orange:   #ff7c1f;
+  --blue:     #2b7fff;
+  --purple:   #9b59f5;
+  --green:    #00c97a;
+  --text:     #e8f4ff;
+  --muted:    #4e6a8a;
+  --sub:      #8da8c4;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',sans-serif;color:var(--text)}
+
+/* ── APP SHELL ── */
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative}
+
+/* ── TOPBAR ── */
+.topbar{
+  flex-shrink:0;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:max(12px,env(safe-area-inset-top));
+}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.status-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1px;
+  background:rgba(0,201,122,0.12);color:var(--green);border:1px solid rgba(0,201,122,0.25);
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.help-btn{
+  background:rgba(255,255,255,0.07);border:none;border-radius:50%;
+  width:32px;height:32px;color:var(--sub);font-size:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── SCREENS ── */
+.screens{flex:1;overflow:hidden;position:relative}
+.screen{
+  position:absolute;inset:0;overflow-y:auto;
+  padding:20px 16px;padding-bottom:max(90px,calc(74px + env(safe-area-inset-bottom)));
+  display:none;flex-direction:column;gap:16px;
+  -webkit-overflow-scrolling:touch;
+}
+.screen.active{display:flex}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  flex-shrink:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 0;cursor:pointer;transition:all .15s;
+}
+.nav-icon{font-size:20px;transition:transform .15s}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.nav-item.active .nav-label{color:var(--cyan)}
+.nav-item.active .nav-icon{transform:scale(1.1)}
+
+/* ── SECTION LABEL ── */
+.section-label{
+  font-size:10px;font-weight:700;letter-spacing:3px;
+  color:var(--muted);text-transform:uppercase;padding:0 2px;
+}
+
+/* ── ONBOARDING ── */
+.onboarding{
+  position:fixed;inset:0;z-index:100;
+  background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:32px 24px;
+  text-align:center;gap:0;
+}
+.ob-slides{width:100%;flex:1;display:flex;flex-direction:column;justify-content:center}
+.ob-slide{display:none;flex-direction:column;align-items:center;gap:16px}
+.ob-slide.active{display:flex}
+.ob-icon{font-size:72px;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ob-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.ob-desc{font-size:15px;color:var(--sub);line-height:1.6;max-width:300px}
+.ob-dots{display:flex;gap:8px;margin:24px 0 16px}
+.ob-dot{width:8px;height:8px;border-radius:4px;background:var(--border);transition:all .3s}
+.ob-dot.active{width:24px;background:var(--cyan)}
+.ob-actions{width:100%;display:flex;justify-content:space-between;align-items:center}
+.ob-skip{background:none;border:none;color:var(--muted);font-size:14px;font-family:'Barlow',sans-serif;cursor:pointer;padding:8px}
+.ob-next{
+  background:linear-gradient(135deg,var(--teal),var(--blue));
+  border:none;border-radius:14px;padding:14px 28px;
+  color:#fff;font-family:'Barlow Condensed',sans-serif;
+  font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer;
+}
+
+/* ── HOME SCREEN ── */
+
+/* Alert type selector */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.type-btn{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:16px;padding:16px 12px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.type-btn.selected{border-width:2px}
+.type-btn::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,0.04);opacity:0;transition:opacity .15s;
+}
+.type-btn:active::after{opacity:1}
+.type-icon{font-size:26px}
+.type-label{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;text-align:center;color:var(--sub)}
+.type-btn.selected .type-label{color:#fff}
+.type-check{
+  position:absolute;top:8px;right:8px;
+  width:18px;height:18px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;display:none;
+}
+.type-btn.selected .type-check{display:flex}
+
+/* SOS button */
+.sos-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0}
+.sos-ring{
+  position:relative;width:180px;height:180px;
+  display:flex;align-items:center;justify-content:center;
+}
+.sos-ring::before,.sos-ring::after{
+  content:'';position:absolute;border-radius:50%;
+  border:2px solid rgba(255,59,59,0.2);
+  animation:sos-pulse 2.5s ease-out infinite;
+}
+.sos-ring::before{inset:-16px;animation-delay:0s}
+.sos-ring::after{inset:-32px;animation-delay:.6s}
+@keyframes sos-pulse{
+  0%{opacity:.6;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.15)}
+}
+.sos-btn{
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#ff5c5c,#c90000);
+  border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  box-shadow:0 0 0 6px rgba(201,0,0,0.2),0 8px 32px rgba(201,0,0,0.4);
+  transition:transform .15s,box-shadow .15s;
+  position:relative;z-index:1;
+}
+.sos-btn:active{transform:scale(.95);box-shadow:0 0 0 3px rgba(201,0,0,0.3),0 4px 16px rgba(201,0,0,0.3)}
+.sos-label{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:#fff;letter-spacing:3px;line-height:1}
+.sos-sub{font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:2px;text-transform:uppercase}
+.sos-success{
+  display:none;flex-direction:column;align-items:center;gap:6px;
+  background:rgba(0,201,122,0.1);border:1px solid rgba(0,201,122,0.3);
+  border-radius:14px;padding:14px 20px;text-align:center;width:100%;
+}
+.sos-success.visible{display:flex}
+.sos-success-title{font-weight:700;color:var(--green);font-size:15px}
+.sos-success-sub{font-size:12px;color:var(--sub)}
+
+/* GPS card */
+.gps-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.gps-icon{font-size:22px;flex-shrink:0}
+.gps-info{flex:1;min-width:0}
+.gps-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.gps-val{font-size:13px;color:var(--text);margin-top:2px;font-family:'Barlow Condensed',sans-serif;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gps-badge{
+  padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:1px;flex-shrink:0;
+}
+
+/* ── ALERT HISTORY SCREEN ── */
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.h-badge{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.h-info{flex:1;min-width:0}
+.h-type{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.h-meta{font-size:11px;color:var(--sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h-time{font-size:10px;color:var(--muted);flex-shrink:0;text-align:right;line-height:1.6}
+.h-sms{font-size:10px;font-weight:600}
+
+/* ── PROFILE SCREEN ── */
+.profile-header{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:24px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+}
+.profile-avatar{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),var(--blue));
+  display:flex;align-items:center;justify-content:center;font-size:30px;
+}
+.profile-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px}
+.profile-role{
+  padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+}
+
+.settings-list{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.settings-item{
+  display:flex;align-items:center;gap:12px;padding:16px;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;
+}
+.settings-item:last-child{border-bottom:none}
+.settings-item:active{background:rgba(255,255,255,.03)}
+.settings-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.settings-text{flex:1}
+.settings-label{font-size:14px;font-weight:600}
+.settings-sub{font-size:11px;color:var(--sub);margin-top:2px}
+.settings-arrow{color:var(--muted);font-size:12px}
+
+/* Contacts */
+.contacts-list{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.contact-item{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+.contact-item:last-child{border-bottom:none}
+.contact-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.contact-info{flex:1;min-width:0}
+.contact-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.contact-type{font-size:11px;color:var(--sub);margin-top:2px}
+.contact-del{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px}
+.add-contact-btn{
+  width:100%;padding:14px;background:rgba(0,212,255,0.08);
+  border:1px dashed rgba(0,212,255,0.25);border-radius:14px;
+  color:var(--cyan);font-family:'Barlow',sans-serif;font-size:14px;
+  font-weight:600;cursor:pointer;letter-spacing:.5px;
+}
+
+/* Logout button */
+.logout-btn{
+  width:100%;padding:16px;background:rgba(255,59,59,0.08);
+  border:1px solid rgba(255,59,59,0.2);border-radius:14px;
+  color:#ff6b6b;font-family:'Barlow Condensed',sans-serif;
+  font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;
+  text-transform:uppercase;
+}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;justify-content:center;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px 24px 0 0;padding:24px 20px;
+  width:100%;max-width:500px;max-height:85vh;overflow-y:auto;
+  animation:slide-up .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:20px;text-transform:uppercase}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.modal-field input,.modal-field select{
+  width:100%;padding:13px 14px;background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.1);border-radius:10px;
+  color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;outline:none;
+}
+.modal-field input:focus,.modal-field select:focus{border-color:var(--cyan)}
+.modal-field select option{background:var(--surface)}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.modal-cancel{flex:1;padding:14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;color:var(--sub);font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.modal-save{flex:2;padding:14px;background:linear-gradient(135deg,var(--teal),var(--blue));border:none;border-radius:12px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer}
+
+/* ── HELP MODAL ── */
+.help-section{margin-bottom:20px}
+.help-section h3{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}
+.help-section p,.help-section li{font-size:13px;color:var(--sub);line-height:1.7}
+.help-section ul{padding-left:16px}
+.modal-close{position:absolute;top:24px;right:20px;background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer}
+
+/* ── LOADING OVERLAY ── */
+.loading-overlay{
+  position:fixed;inset:0;z-index:150;
+  background:rgba(10,15,30,0.9);backdrop-filter:blur(4px);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.loading-overlay.show{display:flex}
+.spinner{width:48px;height:48px;border:3px solid rgba(0,212,255,0.15);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:var(--cyan);font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;
+  z-index:300;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .icon{font-size:40px;margin-bottom:12px}
+.empty-state p{font-size:13px;line-height:1.6}
+
+/* scrollbar */
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+
+<!-- ── ONBOARDING ── -->
+<div class="onboarding" id="onboarding">
+  <div class="ob-slides">
+    <div class="ob-slide active" id="ob0">
+      <div class="ob-icon">🚤</div>
+      <div class="ob-title">Volta Lake Emergency</div>
+      <div class="ob-desc">Your safety system on the water. Send instant alerts to rescue teams when you need help.</div>
+    </div>
+    <div class="ob-slide" id="ob1">
+      <div class="ob-icon">📍</div>
+      <div class="ob-title">Live GPS Location</div>
+      <div class="ob-desc">Your exact position is captured automatically and sent with every alert so rescue teams find you fast.</div>
+    </div>
+    <div class="ob-slide" id="ob2">
+      <div class="ob-icon">📱</div>
+      <div class="ob-title">Instant SMS Alert</div>
+      <div class="ob-desc">Emergency teams receive an SMS with your location and boat details the moment you tap SOS.</div>
+    </div>
+    <div class="ob-slide" id="ob3">
+      <div class="ob-icon">✅</div>
+      <div class="ob-title">Ready to Go</div>
+      <div class="ob-desc">Keep GPS enabled and your phone charged. In an emergency, every second counts.</div>
+    </div>
+  </div>
+  <div class="ob-dots">
+    <div class="ob-dot active" id="dot0"></div>
+    <div class="ob-dot" id="dot1"></div>
+    <div class="ob-dot" id="dot2"></div>
+    <div class="ob-dot" id="dot3"></div>
+  </div>
+  <div class="ob-actions">
+    <button class="ob-skip" onclick="finishOnboarding()">Skip</button>
+    <button class="ob-next" id="obNextBtn" onclick="obNext()">Next →</button>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div class="app" id="app" style="display:none">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title">🚤 Volta Emergency</div>
+    <div class="topbar-right">
+      <div class="status-pill" id="statusPill">
+        <div class="status-dot"></div>
+        <span id="statusText">Online</span>
+      </div>
+      <button class="help-btn" onclick="openModal('helpModal')">❓</button>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <div class="screens">
+
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+
+      <div class="section-label">Select Emergency Type</div>
+
+      <div class="type-grid">
+        <div class="type-btn" id="type-SOS EMERGENCY" onclick="selectType('SOS EMERGENCY')" style="--c:#ff7c1f">
+          <div class="type-check" style="background:#ff7c1f;color:#fff">✓</div>
+          <div class="type-icon">🚨</div>
+          <div class="type-label">General</div>
+        </div>
+        <div class="type-btn" id="type-FIRE ALERT" onclick="selectType('FIRE ALERT')" style="--c:#ff3b3b">
+          <div class="type-check" style="background:#ff3b3b;color:#fff">✓</div>
+          <div class="type-icon">🔥</div>
+          <div class="type-label">Fire</div>
+        </div>
+        <div class="type-btn" id="type-MEDICAL EMERGENCY" onclick="selectType('MEDICAL EMERGENCY')" style="--c:#2b7fff">
+          <div class="type-check" style="background:#2b7fff;color:#fff">✓</div>
+          <div class="type-icon">🚑</div>
+          <div class="type-label">Medical</div>
+        </div>
+        <div class="type-btn" id="type-BOAT SINKING ALERT" onclick="selectType('BOAT SINKING ALERT')" style="--c:#9b59f5">
+          <div class="type-check" style="background:#9b59f5;color:#fff">✓</div>
+          <div class="type-icon">🚢</div>
+          <div class="type-label">Sinking</div>
+        </div>
+      </div>
+
+      <!-- SOS Button -->
+      <div class="sos-wrap">
+        <div class="sos-ring">
+          <button class="sos-btn" id="sosBtn" onclick="sendAlert()">
+            <div class="sos-label">SOS</div>
+            <div class="sos-sub">TAP TO ALERT</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Success message -->
+      <div class="sos-success" id="sosSuccess">
+        <div class="sos-success-title">✓ Alert Sent Successfully</div>
+        <div class="sos-success-sub" id="sosSuccessSub">Emergency teams have been notified</div>
+      </div>
+
+      <!-- GPS card -->
+      <div class="section-label">GPS Location</div>
+      <div class="gps-card">
+        <div class="gps-icon">📍</div>
+        <div class="gps-info">
+          <div class="gps-label">Coordinates</div>
+          <div class="gps-val" id="gpsVal">Waiting for GPS…</div>
+        </div>
+        <div class="gps-badge" id="gpsBadge" style="background:rgba(78,106,138,0.15);color:var(--muted)">Locating</div>
+      </div>
+
+    </div><!-- /home -->
+
+    <!-- ALERTS -->
+    <div class="screen" id="screen-alerts">
+      <div class="section-label">Alert History</div>
+      <div class="history-list" id="historyList">
+        <div class="empty-state"><div class="icon">📋</div><p>No alerts sent yet.</p></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen" id="screen-profile">
+
+      <div class="profile-header" id="profileHeader">
+        <div class="profile-avatar">👤</div>
+        <div class="profile-name" id="profileName">—</div>
+        <div class="profile-role" id="profileRole">Responder</div>
+      </div>
+
+      <div class="section-label">Vessel Info</div>
+      <div class="settings-list">
+        <div class="settings-item" onclick="openModal('vesselModal')">
+          <div class="settings-icon">🚤</div>
+          <div class="settings-text">
+            <div class="settings-label">Boat Details</div>
+            <div class="settings-sub" id="boatSummary">Tap to set your boat ID and vessel type</div>
+          </div>
+          <div class="settings-arrow">›</div>
+        </div>
+        <div class="settings-item" onclick="openModal('vesselModal')">
+          <div class="settings-icon">👥</div>
+          <div class="settings-text">
+            <div class="settings-label">Passengers Onboard</div>
+            <div class="settings-sub" id="paxSummary">Tap to set number of people</div>
+          </div>
+          <div class="settings-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-label">Emergency Contacts</div>
+      <div class="section-label" style="font-size:9px;color:var(--muted);margin-top:-8px">These receive alerts when you press SOS</div>
+      <div class="contacts-list" id="contactsList"></div>
+      <button class="add-contact-btn" onclick="openModal('contactModal')">+ Add Emergency Contact</button>
+
+      <div class="section-label">Account</div>
+      <div class="settings-list">
+        <div class="settings-item">
+          <div class="settings-icon">🔔</div>
+          <div class="settings-text">
+            <div class="settings-label">Notifications</div>
+            <div class="settings-sub">Alert confirmations</div>
+          </div>
+          <div class="settings-arrow">›</div>
+        </div>
+        <div class="settings-item">
+          <div class="settings-icon">📡</div>
+          <div class="settings-text">
+            <div class="settings-label">Offline Mode</div>
+            <div class="settings-sub">Sends GPS coords even without internet</div>
+          </div>
+          <div class="settings-arrow">›</div>
+        </div>
+      </div>
+
+      <button class="logout-btn" onclick="VoltaAuth.logout()">Sign Out</button>
+
+    </div><!-- /profile -->
+
+  </div><!-- /screens -->
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Home</div>
+    </div>
+    <div class="nav-item" id="nav-alerts" onclick="switchTab('alerts')">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">Alerts</div>
+    </div>
+    <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Profile</div>
+    </div>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ── LOADING ── -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Locating…</div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── MODALS ── -->
+
+<!-- Vessel Modal -->
+<div class="modal-overlay" id="vesselModal" onclick="closeModalOutside(event,'vesselModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚓ Vessel Details</div>
+    <div class="modal-field">
+      <label>Boat ID / Registration</label>
+      <input id="m-boatId" placeholder="e.g. VL-2045">
+    </div>
+    <div class="modal-field">
+      <label>Vessel Type</label>
+      <select id="m-vesselType">
+        <option>Fishing Boat</option>
+        <option>Passenger Canoe</option>
+        <option>Cargo Vessel</option>
+        <option>Ferry</option>
+        <option>Speedboat</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Number of People Onboard</label>
+      <input id="m-pax" type="number" placeholder="e.g. 8" min="1">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('vesselModal')">Cancel</button>
+      <button class="modal-save" onclick="saveVessel()">Save Details</button>
+    </div>
+  </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal-overlay" id="contactModal" onclick="closeModalOutside(event,'contactModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">👤 Add Emergency Contact</div>
+    <div class="modal-field">
+      <label>Contact Name</label>
+      <input id="m-contactName" placeholder="e.g. Volta Lake Authority">
+    </div>
+    <div class="modal-field">
+      <label>Phone Number (Ghana format)</label>
+      <input id="m-contactPhone" placeholder="+233XXXXXXXXX" type="tel">
+    </div>
+    <div class="modal-field">
+      <label>Alert Type</label>
+      <select id="m-contactType">
+        <option value="ALL">All Emergencies</option>
+        <option value="SOS EMERGENCY">SOS / General</option>
+        <option value="FIRE ALERT">Fire Alert</option>
+        <option value="MEDICAL EMERGENCY">Medical Emergency</option>
+        <option value="BOAT SINKING ALERT">Boat Sinking</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('contactModal')">Cancel</button>
+      <button class="modal-save" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal-overlay" id="helpModal" onclick="closeModalOutside(event,'helpModal')">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('helpModal')">✕</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Volta Emergency Help</div>
+    <div class="help-section">
+      <h3>🚨 Sending SOS</h3>
+      <p>Select your emergency type then tap the red SOS button. Your GPS location and boat details are sent instantly to rescue teams and your saved contacts.</p>
+    </div>
+    <div class="help-section">
+      <h3>📍 GPS Location</h3>
+      <p>The app uses your device GPS to share your live position. Allow location access when prompted for the fastest response.</p>
+    </div>
+    <div class="help-section">
+      <h3>📡 Offline Mode</h3>
+      <p>Without internet, the app falls back to sending GPS coordinates only. Always try to stay in network range on the lake.</p>
+    </div>
+    <div class="help-section">
+      <h3>👥 Emergency Contacts</h3>
+      <p>Save contacts in the Profile tab. They receive an SMS alert with your coordinates every time you press SOS.</p>
+    </div>
+    <div class="help-section">
+      <h3>🔥 Safety Tips</h3>
+      <ul>
+        <li>Keep GPS enabled at all times</li>
+        <li>Keep your phone charged before trips</li>
+        <li>Update your passenger count before departure</li>
+        <li>Stay calm — help is on the way</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Contact Modal -->
+<div class="modal-overlay" id="deleteModal" onclick="closeModalOutside(event,'deleteModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🗑️ Delete Contact?</div>
+    <p style="color:var(--sub);font-size:14px;margin-bottom:20px">Remove <strong id="deleteContactName"></strong> from your emergency contacts? This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="modal-save" style="background:linear-gradient(135deg,#ff3b3b,#a80000)" onclick="confirmDeleteContact()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════
+const BACKEND_URL = 'https://volta-backend-production-2fd3.up.railway.app';
+
+const TYPE_CFG = {
+  'SOS EMERGENCY':      { color:'#ff7c1f', bg:'rgba(255,124,42,.15)',  icon:'🚨', phone:'+233241111111' },
+  'FIRE ALERT':         { color:'#ff3b3b', bg:'rgba(255,59,59,.15)',   icon:'🔥', phone:'+233242222222' },
+  'MEDICAL EMERGENCY':  { color:'#2b7fff', bg:'rgba(43,127,255,.15)',  icon:'🚑', phone:'+233243333333' },
+  'BOAT SINKING ALERT': { color:'#9b59f5', bg:'rgba(155,89,245,.15)', icon:'🚢', phone:'+233244444444' },
+};
+
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+let selectedType   = 'SOS EMERGENCY';
+let currentLat     = null;
+let currentLon     = null;
+let gpsReady       = false;
+let obStep         = 0;
+let deleteTargetIdx = null;
+
+// Persisted vessel info
+let vessel = JSON.parse(localStorage.getItem('volta_vessel') || '{"boatId":"","vesselType":"Fishing Boat","pax":""}');
+let contacts = JSON.parse(localStorage.getItem('volta_contacts') || '[]');
+let alertHistory = JSON.parse(localStorage.getItem('volta_history') || '[]');
+
+// ══════════════════════════════════════════════════
+//  ONBOARDING
+// ══════════════════════════════════════════════════
+function obNext() {
+  if (obStep < 3) {
+    document.getElementById(`ob${obStep}`).classList.remove('active');
+    document.getElementById(`dot${obStep}`).classList.remove('active');
+    obStep++;
+    document.getElementById(`ob${obStep}`).classList.add('active');
+    document.getElementById(`dot${obStep}`).classList.add('active');
+    if (obStep === 3) document.getElementById('obNextBtn').textContent = 'Ready';
+  } else {
+    finishOnboarding();
+  }
+}
+
+function finishOnboarding() {
+  localStorage.setItem('volta_onboarded', '1');
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  initApp();
+}
+
+// ══════════════════════════════════════════════════
+//  APP INIT
+// ══════════════════════════════════════════════════
+function initApp() {
+  const user = VoltaAuth.getUser();
+  if (user) {
+    document.getElementById('profileName').textContent = user.username;
+    const roleEl = document.getElementById('profileRole');
+    roleEl.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+    roleEl.style.cssText = `background:rgba(0,212,255,0.1);color:var(--cyan);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase`;
+  }
+  selectType('SOS EMERGENCY');
+  startGPS();
+  checkBackend();
+  renderContacts();
+  renderHistory();
+  updateBoatSummary();
+}
+
+// ══════════════════════════════════════════════════
+//  GPS
+// ══════════════════════════════════════════════════
+function startGPS() {
+  if (!navigator.geolocation) {
+    document.getElementById('gpsVal').textContent = 'GPS not available';
+    return;
+  }
+  navigator.geolocation.watchPosition(pos => {
+    currentLat = pos.coords.latitude;
+    currentLon = pos.coords.longitude;
+    gpsReady = true;
+    document.getElementById('gpsVal').textContent = `${currentLat.toFixed(5)}, ${currentLon.toFixed(5)}`;
+    const badge = document.getElementById('gpsBadge');
+    badge.textContent = 'Ready';
+    badge.style.cssText = 'background:rgba(0,201,122,0.12);color:var(--green);padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:1px';
+  }, () => {
+    document.getElementById('gpsVal').textContent = 'Location unavailable';
+    const badge = document.getElementById('gpsBadge');
+    badge.textContent = 'No GPS';
+    badge.style.cssText = 'background:rgba(255,59,59,0.1);color:#ff6b6b;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:1px';
+  }, { enableHighAccuracy: true, maximumAge: 10000 });
+}
+
+// ══════════════════════════════════════════════════
+//  BACKEND STATUS
+// ══════════════════════════════════════════════════
+async function checkBackend() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/health`, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) throw new Error();
+  } catch {
+    const pill = document.getElementById('statusPill');
+    const dot  = document.getElementById('statusPill').querySelector('.status-dot');
+    const txt  = document.getElementById('statusText');
+    pill.style.background = 'rgba(255,59,59,0.1)';
+    pill.style.borderColor = 'rgba(255,59,59,0.25)';
+    dot.style.background = '#ff3b3b';
+    txt.style.color = '#ff6b6b';
+    txt.textContent = 'Offline';
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  ALERT TYPE SELECTION
+// ══════════════════════════════════════════════════
+function selectType(type) {
+  // Clear all
+  document.querySelectorAll('.type-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.style.borderColor = 'var(--border)';
+    b.style.background  = 'var(--card)';
+  });
+  // Select new
+  selectedType = type;
+  const btn = document.getElementById(`type-${type}`);
+  const cfg = TYPE_CFG[type];
+  btn.classList.add('selected');
+  btn.style.borderColor = cfg.color;
+  btn.style.background  = cfg.bg;
+  // Update SOS button ring color
+  document.querySelector('.sos-ring').style.setProperty('--ring-color', cfg.color);
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+// ══════════════════════════════════════════════════
+//  SEND ALERT
+// ══════════════════════════════════════════════════
+async function sendAlert() {
+  if (!vessel.boatId) {
+    showToast('⚓ Set your Boat ID in Profile first');
+    openModal('vesselModal');
+    return;
+  }
+
+  const overlay = document.getElementById('loadingOverlay');
+  const loadTxt = document.getElementById('loadingText');
+
+  overlay.classList.add('show');
+  loadTxt.textContent = 'Acquiring GPS…';
+
+  // Ensure we have GPS
+  let lat = currentLat, lon = currentLon;
+  if (!gpsReady) {
+    try {
+      const pos = await new Promise((res, rej) =>
+        navigator.geolocation.getCurrentPosition(res, rej, { timeout:8000 })
+      );
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+    } catch {
+      // Fallback to demo Volta Lake coords
+      lat = 6.5244 + (Math.random()-.5)*.2;
+      lon = 0.1234 + (Math.random()-.5)*.2;
+      showToast('⚠️ GPS unavailable — demo location used');
+    }
+  }
+
+  loadTxt.textContent = 'Sending alert…';
+  const cfg  = TYPE_CFG[selectedType];
+  const time = new Date().toLocaleString('en-GH', { dateStyle:'medium', timeStyle:'short' });
+
+  // Notify custom contacts too
+  const relevantContacts = contacts.filter(c => c.alertType === 'ALL' || c.alertType === selectedType);
+
+  let alertId = null, smsSent = false;
+  try {
+    const res = await VoltaAuth.authFetch(`${BACKEND_URL}/api/alert/send`, {
+      method: 'POST',
+      body: JSON.stringify({
+        type: selectedType,
+        boatId: vessel.boatId,
+        passenger: VoltaAuth.getUser()?.username || 'Unknown',
+        paxCount: vessel.pax || 'Unknown',
+        vesselType: vessel.vesselType,
+        lat, lon,
+        phone: cfg.phone,
+      })
+    });
+    if (res) {
+      const data = await res.json();
+      alertId  = data.alertId;
+      smsSent  = data.sms?.sent;
+    }
+  } catch (e) {
+    console.warn('Backend offline, saving locally');
+  }
+
+  overlay.classList.remove('show');
+
+  // Save to local history
+  const entry = { type: selectedType, boatId: vessel.boatId, pax: vessel.pax,
+    vesselType: vessel.vesselType, lat, lon, time, smsSent: smsSent || false, alertId };
+  alertHistory.unshift(entry);
+  localStorage.setItem('volta_history', JSON.stringify(alertHistory.slice(0,50)));
+
+  // Show success
+  const successEl = document.getElementById('sosSuccess');
+  const successSub = document.getElementById('sosSuccessSub');
+  successEl.classList.add('visible');
+  successEl.style.borderColor = cfg.color + '55';
+  successSub.textContent = smsSent
+    ? `SMS sent · Alert #${alertId} · ${time}`
+    : `Saved locally · ${time}`;
+
+  renderHistory();
+  if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+  setTimeout(() => successEl.classList.remove('visible'), 6000);
+}
+
+// ══════════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════════
+async function renderHistory() {
+  const list = document.getElementById('historyList');
+
+  // Try backend first
+  try {
+    const res = await VoltaAuth.authFetch(`${BACKEND_URL}/api/alert/history?limit=30`);
+    if (res) {
+      const data = await res.json();
+      if (data.success && data.alerts.length) {
+        list.innerHTML = data.alerts.map(a => historyItemHTML({
+          type: a.type,
+          boatId: a.boat_id,
+          pax: a.pax_count,
+          lat: a.latitude,
+          lon: a.longitude,
+          time: a.created_at,
+          smsSent: a.sms_status === 'sent',
+          alertId: a.id
+        })).join('');
+        return;
+      }
+    }
+  } catch {}
+
+  // Fallback to localStorage
+  if (!alertHistory.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No alerts sent yet.</p></div>';
+    return;
+  }
+  list.innerHTML = alertHistory.map(a => historyItemHTML(a)).join('');
+}
+
+function historyItemHTML(a) {
+  const cfg = TYPE_CFG[a.type] || { color:'#888', bg:'rgba(136,136,136,.1)', icon:'⚠️' };
+  const smsHtml = a.smsSent
+    ? `<span class="h-sms" style="color:var(--green)">📱 SMS Sent</span>`
+    : `<span class="h-sms" style="color:var(--muted)">📋 Saved</span>`;
+  return `<div class="history-item">
+    <div class="h-badge" style="background:${cfg.bg}">${cfg.icon}</div>
+    <div class="h-info">
+      <div class="h-type" style="color:${cfg.color}">${a.type}</div>
+      <div class="h-meta">🚤 ${a.boatId || a.boat_id} · 👥 ${a.pax || a.pax_count || '—'} · 📍 ${Number(a.lat||a.latitude).toFixed(3)}, ${Number(a.lon||a.longitude).toFixed(3)}</div>
+    </div>
+    <div class="h-time">${smsHtml}<br>${a.time || a.created_at || ''}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  CONTACTS
+// ══════════════════════════════════════════════════
+function renderContacts() {
+  const list = document.getElementById('contactsList');
+  if (!contacts.length) {
+    list.innerHTML = `<div class="settings-item" style="cursor:default">
+      <div class="settings-icon">📵</div>
+      <div class="settings-text"><div class="settings-label" style="color:var(--muted)">No contacts saved</div></div>
+    </div>`;
+    return;
+  }
+  const typeColors = { 'ALL':'#00d4ff','SOS EMERGENCY':'#ff7c1f','FIRE ALERT':'#ff3b3b','MEDICAL EMERGENCY':'#2b7fff','BOAT SINKING ALERT':'#9b59f5' };
+  list.innerHTML = contacts.map((c, i) => `
+    <div class="contact-item">
+      <div class="contact-dot" style="background:${typeColors[c.alertType]||'#888'}"></div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name}</div>
+        <div class="contact-type">${c.phone} · ${c.alertType === 'ALL' ? 'All emergencies' : c.alertType}</div>
+      </div>
+      <button class="contact-del" onclick="promptDeleteContact(${i})">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function saveContact() {
+  const name  = document.getElementById('m-contactName').value.trim();
+  const phone = document.getElementById('m-contactPhone').value.trim();
+  const type  = document.getElementById('m-contactType').value;
+  if (!name || !phone) { showToast('Please fill in name and phone'); return; }
+  contacts.push({ name, phone, alertType: type });
+  localStorage.setItem('volta_contacts', JSON.stringify(contacts));
+  renderContacts();
+  closeModal('contactModal');
+  document.getElementById('m-contactName').value = '';
+  document.getElementById('m-contactPhone').value = '';
+  showToast('✓ Contact saved');
+}
+
+function promptDeleteContact(i) {
+  deleteTargetIdx = i;
+  document.getElementById('deleteContactName').textContent = contacts[i].name;
+  openModal('deleteModal');
+}
+
+function confirmDeleteContact() {
+  if (deleteTargetIdx !== null) {
+    contacts.splice(deleteTargetIdx, 1);
+    localStorage.setItem('volta_contacts', JSON.stringify(contacts));
+    renderContacts();
+    deleteTargetIdx = null;
+  }
+  closeModal('deleteModal');
+  showToast('Contact removed');
+}
+
+// ══════════════════════════════════════════════════
+//  VESSEL
+// ══════════════════════════════════════════════════
+function saveVessel() {
+  vessel.boatId     = document.getElementById('m-boatId').value.trim();
+  vessel.vesselType = document.getElementById('m-vesselType').value;
+  vessel.pax        = document.getElementById('m-pax').value.trim();
+  localStorage.setItem('volta_vessel', JSON.stringify(vessel));
+  updateBoatSummary();
+  closeModal('vesselModal');
+  showToast('✓ Vessel details saved');
+}
+
+function updateBoatSummary() {
+  document.getElementById('boatSummary').textContent = vessel.boatId
+    ? `${vessel.boatId} · ${vessel.vesselType}`
+    : 'Tap to set your boat ID and vessel type';
+  document.getElementById('paxSummary').textContent = vessel.pax
+    ? `${vessel.pax} people onboard`
+    : 'Tap to set number of people';
+  // Pre-fill modal
+  document.getElementById('m-boatId').value = vessel.boatId || '';
+  document.getElementById('m-vesselType').value = vessel.vesselType || 'Fishing Boat';
+  document.getElementById('m-pax').value = vessel.pax || '';
+}
+
+// ══════════════════════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`screen-${tab}`).classList.add('active');
+  document.getElementById(`nav-${tab}`).classList.add('active');
+  if (tab === 'alerts') renderHistory();
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+
+// ══════════════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function closeModalOutside(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+
+// ══════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════
+const _user = VoltaAuth.guard(['responder','admin']);
+if (_user) {
+  if (localStorage.getItem('volta_onboarded')) {
+    document.getElementById('onboarding').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initApp();
+  } else {
+    document.getElementById('onboarding').style.display = 'flex';
+  }
+}
+</script>
+</body>
+</html>
