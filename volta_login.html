@@ -18,9 +18,9 @@
   --muted:   #4b6a8a;
   --error:   #ff4444;
 }
-
+ 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
+ 
 body {
   min-height: 100vh;
   background: var(--bg);
@@ -32,7 +32,7 @@ body {
   padding: 20px;
   overflow: hidden;
 }
-
+ 
 /* ── Background ── */
 .bg-mesh {
   position: fixed; inset: 0; z-index: 0;
@@ -41,7 +41,7 @@ body {
     radial-gradient(ellipse 50% 70% at 85% 50%, rgba(0,100,200,0.12) 0%, transparent 60%),
     linear-gradient(160deg, #020c1b 0%, #071422 100%);
 }
-
+ 
 .grid-lines {
   position: fixed; inset: 0; z-index: 0;
   background-image:
@@ -50,7 +50,7 @@ body {
   background-size: 50px 50px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
 }
-
+ 
 /* ── Animated rings ── */
 .ring {
   position: fixed; border-radius: 50%;
@@ -65,7 +65,7 @@ body {
   0%,100%{ opacity:.4; transform:translate(-50%,-50%) scale(1); }
   50%{ opacity:.1; transform:translate(-50%,-50%) scale(1.04); }
 }
-
+ 
 /* ── Card ── */
 .card {
   position: relative; z-index: 1;
@@ -82,7 +82,7 @@ body {
   from { opacity:0; transform:translateY(24px) scale(.97); }
   to   { opacity:1; transform:translateY(0) scale(1); }
 }
-
+ 
 /* ── Header ── */
 .logo {
   text-align: center; margin-bottom: 32px;
@@ -107,7 +107,7 @@ body {
   font-size: 11px; letter-spacing: 3px; color: var(--muted);
   text-transform: uppercase; margin-top: 6px;
 }
-
+ 
 /* ── Role tabs ── */
 .role-tabs {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -126,7 +126,7 @@ body {
   color: var(--cyan);
   box-shadow: 0 0 0 1px rgba(0,212,255,0.2);
 }
-
+ 
 /* ── Form ── */
 .field { margin-bottom: 18px; }
 .field label {
@@ -147,7 +147,7 @@ body {
   box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
 }
 .field input::placeholder { color: rgba(75,106,138,0.6); }
-
+ 
 /* ── Error message ── */
 .error-msg {
   background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.25);
@@ -162,7 +162,7 @@ body {
   25%{transform:translateX(-6px)}
   75%{transform:translateX(6px)}
 }
-
+ 
 /* ── Submit button ── */
 .btn-login {
   width: 100%; padding: 16px;
@@ -183,7 +183,7 @@ body {
   background: rgba(0,0,0,0.3);
   display: flex; align-items: center; justify-content: center;
 }
-
+ 
 /* ── Spinner inside button ── */
 .btn-spinner {
   display: none; width: 18px; height: 18px;
@@ -195,7 +195,7 @@ body {
 @keyframes spin { to{transform:rotate(360deg)} }
 .btn-login.loading .btn-text { display: none; }
 .btn-login.loading .btn-spinner { display: block; }
-
+ 
 /* ── Footer ── */
 .card-footer {
   text-align: center; margin-top: 24px;
@@ -204,20 +204,20 @@ body {
 </style>
 </head>
 <body>
-
+ 
 <div class="bg-mesh"></div>
 <div class="grid-lines"></div>
 <div class="ring"></div>
 <div class="ring"></div>
 <div class="ring"></div>
-
+ 
 <div class="card">
   <div class="logo">
     <span class="logo-icon">🚤</span>
     <h1>Volta Lake</h1>
     <p>Emergency Response System</p>
   </div>
-
+ 
   <!-- Role selector -->
   <div class="role-tabs">
     <div class="role-tab active" id="tab-responder" onclick="selectRole('responder')">
@@ -227,10 +227,10 @@ body {
       📊 Admin
     </div>
   </div>
-
+ 
   <!-- Error -->
   <div class="error-msg" id="errorMsg"></div>
-
+ 
   <!-- Form -->
   <div class="field">
     <label>Username</label>
@@ -242,38 +242,38 @@ body {
     <input type="password" id="password" placeholder="Enter your password"
       autocomplete="current-password">
   </div>
-
+ 
   <button class="btn-login" id="loginBtn" onclick="doLogin()">
     <span class="btn-text">Sign In</span>
     <div class="btn-spinner"></div>
   </button>
-
+ 
   <div class="card-footer">
     Volta Lake Authority &nbsp;·&nbsp; Ghana &nbsp;·&nbsp; © 2026
   </div>
 </div>
-
+ 
 <script>
 // ══════════════════════════════════════════════
 //  CONFIG — update this when deployed
 // ══════════════════════════════════════════════
-const BACKEND_URL = 'https://volta-backend-production-2fd3.up.railway.app';
-
+const BACKEND_URL = 'https://volta-backend-production-5ddb.up.railway.app';
+ 
 // Where to redirect after login
 const REDIRECT = {
   responder: 'volta_mobile.html',
   admin:     'volta_admin.html',
 };
-
+ 
 let selectedRole = 'responder';
-
+ 
 // ── Role tabs ──────────────────────────────────
 function selectRole(role) {
   selectedRole = role;
   document.getElementById('tab-responder').classList.toggle('active', role === 'responder');
   document.getElementById('tab-admin').classList.toggle('active', role === 'admin');
 }
-
+ 
 // ── Show error ─────────────────────────────────
 function showError(msg) {
   const el = document.getElementById('errorMsg');
@@ -287,22 +287,22 @@ function showError(msg) {
 function clearError() {
   document.getElementById('errorMsg').classList.remove('visible');
 }
-
+ 
 // ── Login ──────────────────────────────────────
 async function doLogin() {
   clearError();
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const btn      = document.getElementById('loginBtn');
-
+ 
   if (!username || !password) {
     showError('Please enter your username and password.');
     return;
   }
-
+ 
   btn.disabled = true;
   btn.classList.add('loading');
-
+ 
   try {
     const res  = await fetch(`${BACKEND_URL}/api/auth/login`, {
       method:  'POST',
@@ -310,21 +310,21 @@ async function doLogin() {
       body:    JSON.stringify({ username, password }),
     });
     const data = await res.json();
-
+ 
     if (!data.success) {
       showError(data.error || 'Login failed. Please try again.');
       return;
     }
-
+ 
     // Store token and user info
     localStorage.setItem('volta_token',    data.token);
     localStorage.setItem('volta_user',     JSON.stringify(data.user));
     localStorage.setItem('volta_expires',  Date.now() + (8 * 60 * 60 * 1000));
-
+ 
     // Redirect based on role
     const target = REDIRECT[data.user.role] || REDIRECT.responder;
     window.location.href = target;
-
+ 
   } catch (err) {
     showError('Cannot connect to server. Please check your connection.');
   } finally {
@@ -332,12 +332,12 @@ async function doLogin() {
     btn.classList.remove('loading');
   }
 }
-
+ 
 // ── Enter key support ──────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') doLogin();
 });
-
+ 
 // ── Redirect if already logged in ─────────────
 (function checkExistingSession() {
   const token   = localStorage.getItem('volta_token');
@@ -350,3 +350,8 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
+ 
+
+</body>
+</html>
+ 
