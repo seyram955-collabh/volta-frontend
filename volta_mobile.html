@@ -9,7 +9,6 @@
 <meta name="theme-color" content="#0a0f1e">
 <title>Volta Emergency</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="volta-auth.js"></script>
 <style>
@@ -29,13 +28,13 @@
   --muted:    #4e6a8a;
   --sub:      #8da8c4;
 }
-
+ 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',sans-serif;color:var(--text)}
-
+ 
 /* ── APP SHELL ── */
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative}
-
+ 
 /* ── TOPBAR ── */
 .topbar{
   flex-shrink:0;
@@ -59,7 +58,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
   width:32px;height:32px;color:var(--sub);font-size:15px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
 }
-
+ 
 /* ── SCREENS ── */
 .screens{flex:1;overflow:hidden;position:relative}
 .screen{
@@ -69,7 +68,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
   -webkit-overflow-scrolling:touch;
 }
 .screen.active{display:flex}
-
+ 
 /* ── BOTTOM NAV ── */
 .bottom-nav{
   flex-shrink:0;
@@ -85,13 +84,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .nav-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
 .nav-item.active .nav-label{color:var(--cyan)}
 .nav-item.active .nav-icon{transform:scale(1.1)}
-
+ 
 /* ── SECTION LABEL ── */
 .section-label{
   font-size:10px;font-weight:700;letter-spacing:3px;
   color:var(--muted);text-transform:uppercase;padding:0 2px;
 }
-
+ 
 /* ── ONBOARDING ── */
 .onboarding{
   position:fixed;inset:0;z-index:100;
@@ -117,9 +116,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
   color:#fff;font-family:'Barlow Condensed',sans-serif;
   font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer;
 }
-
+ 
 /* ── HOME SCREEN ── */
-
+ 
 /* Alert type selector */
 .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .type-btn{
@@ -144,7 +143,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
   font-size:10px;font-weight:700;display:none;
 }
 .type-btn.selected .type-check{display:flex}
-
+ 
 /* SOS button */
 .sos-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0}
 .sos-ring{
@@ -182,7 +181,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .sos-success.visible{display:flex}
 .sos-success-title{font-weight:700;color:var(--green);font-size:15px}
 .sos-success-sub{font-size:12px;color:var(--sub)}
-
+ 
 /* GPS card */
 .gps-card{
   background:var(--card);border:1px solid var(--border);
@@ -196,7 +195,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .gps-badge{
   padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:1px;flex-shrink:0;
 }
-
+ 
 /* ── ALERT HISTORY SCREEN ── */
 .history-list{display:flex;flex-direction:column;gap:10px}
 .history-item{
@@ -213,7 +212,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .h-meta{font-size:11px;color:var(--sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .h-time{font-size:10px;color:var(--muted);flex-shrink:0;text-align:right;line-height:1.6}
 .h-sms{font-size:10px;font-weight:600}
-
+ 
 /* ── PROFILE SCREEN ── */
 .profile-header{
   background:var(--card);border:1px solid var(--border);
@@ -229,7 +228,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .profile-role{
   padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
 }
-
+ 
 .settings-list{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
 .settings-item{
   display:flex;align-items:center;gap:12px;padding:16px;
@@ -242,7 +241,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .settings-label{font-size:14px;font-weight:600}
 .settings-sub{font-size:11px;color:var(--sub);margin-top:2px}
 .settings-arrow{color:var(--muted);font-size:12px}
-
+ 
 /* Contacts */
 .contacts-list{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
 .contact-item{
@@ -261,7 +260,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
   color:var(--cyan);font-family:'Barlow',sans-serif;font-size:14px;
   font-weight:600;cursor:pointer;letter-spacing:.5px;
 }
-
+ 
 /* Logout button */
 .logout-btn{
   width:100%;padding:16px;background:rgba(255,59,59,0.08);
@@ -270,7 +269,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
   font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;
   text-transform:uppercase;
 }
-
+ 
 /* ── MODAL ── */
 .modal-overlay{
   position:fixed;inset:0;z-index:200;
@@ -300,15 +299,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .modal-actions{display:flex;gap:10px;margin-top:20px}
 .modal-cancel{flex:1;padding:14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;color:var(--sub);font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
 .modal-save{flex:2;padding:14px;background:linear-gradient(135deg,var(--teal),var(--blue));border:none;border-radius:12px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer}
-.modal-save.delete-btn{background:linear-gradient(135deg,#ff3b3b,#a80000)}
-
+ 
 /* ── HELP MODAL ── */
 .help-section{margin-bottom:20px}
 .help-section h3{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}
 .help-section p,.help-section li{font-size:13px;color:var(--sub);line-height:1.7}
 .help-section ul{padding-left:16px}
 .modal-close{position:absolute;top:24px;right:20px;background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer}
-
+ 
 /* ── LOADING OVERLAY ── */
 .loading-overlay{
   position:fixed;inset:0;z-index:150;
@@ -319,7 +317,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 .spinner{width:48px;height:48px;border:3px solid rgba(0,212,255,0.15);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{color:var(--cyan);font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase}
-
+ 
 /* ── TOAST ── */
 .toast{
   position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;
@@ -330,18 +328,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
   box-shadow:0 8px 24px rgba(0,0,0,0.4);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
+ 
 /* ── EMPTY STATE ── */
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
 .empty-state .icon{font-size:40px;margin-bottom:12px}
 .empty-state p{font-size:13px;line-height:1.6}
-
+ 
 /* scrollbar */
 ::-webkit-scrollbar{width:0;height:0}
 </style>
 </head>
 <body>
-
+ 
 <!-- ── ONBOARDING ── -->
 <div class="onboarding" id="onboarding">
   <div class="ob-slides">
@@ -377,10 +375,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
     <button class="ob-next" id="obNextBtn" onclick="obNext()">Next →</button>
   </div>
 </div>
-
+ 
 <!-- ── APP ── -->
 <div class="app" id="app" style="display:none">
-
+ 
   <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-title">🚤 Volta Emergency</div>
@@ -392,15 +390,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
       <button class="help-btn" onclick="openModal('helpModal')">❓</button>
     </div>
   </div>
-
+ 
   <!-- Screens -->
   <div class="screens">
-
+ 
     <!-- HOME -->
     <div class="screen active" id="screen-home">
-
+ 
       <div class="section-label">Select Emergency Type</div>
-
+ 
       <div class="type-grid">
         <div class="type-btn" id="type-SOS EMERGENCY" onclick="selectType('SOS EMERGENCY')" style="--c:#ff7c1f">
           <div class="type-check" style="background:#ff7c1f;color:#fff">✓</div>
@@ -423,7 +421,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
           <div class="type-label">Sinking</div>
         </div>
       </div>
-
+ 
       <!-- SOS Button -->
       <div class="sos-wrap">
         <div class="sos-ring">
@@ -433,13 +431,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
           </button>
         </div>
       </div>
-
+ 
       <!-- Success message -->
       <div class="sos-success" id="sosSuccess">
         <div class="sos-success-title">✓ Alert Sent Successfully</div>
         <div class="sos-success-sub" id="sosSuccessSub">Emergency teams have been notified</div>
       </div>
-
+ 
       <!-- GPS card -->
       <div class="section-label">GPS Location</div>
       <div class="gps-card">
@@ -450,9 +448,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
         </div>
         <div class="gps-badge" id="gpsBadge" style="background:rgba(78,106,138,0.15);color:var(--muted)">Locating</div>
       </div>
-
+ 
     </div><!-- /home -->
-
+ 
     <!-- ALERTS -->
     <div class="screen" id="screen-alerts">
       <div class="section-label">Alert History</div>
@@ -460,16 +458,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
         <div class="empty-state"><div class="icon">📋</div><p>No alerts sent yet.</p></div>
       </div>
     </div>
-
+ 
     <!-- PROFILE -->
     <div class="screen" id="screen-profile">
-
+ 
       <div class="profile-header" id="profileHeader">
         <div class="profile-avatar">👤</div>
         <div class="profile-name" id="profileName">—</div>
         <div class="profile-role" id="profileRole">Responder</div>
       </div>
-
+ 
       <div class="section-label">Vessel Info</div>
       <div class="settings-list">
         <div class="settings-item" onclick="openModal('vesselModal')">
@@ -489,12 +487,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
           <div class="settings-arrow">›</div>
         </div>
       </div>
-
+ 
       <div class="section-label">Emergency Contacts</div>
       <div class="section-label" style="font-size:9px;color:var(--muted);margin-top:-8px">These receive alerts when you press SOS</div>
       <div class="contacts-list" id="contactsList"></div>
       <button class="add-contact-btn" onclick="openModal('contactModal')">+ Add Emergency Contact</button>
-
+ 
       <div class="section-label">Account</div>
       <div class="settings-list">
         <div class="settings-item">
@@ -514,13 +512,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
           <div class="settings-arrow">›</div>
         </div>
       </div>
-
+ 
       <button class="logout-btn" onclick="VoltaAuth.logout()">Sign Out</button>
-
+ 
     </div><!-- /profile -->
-
+ 
   </div><!-- /screens -->
-
+ 
   <!-- Bottom Nav -->
   <nav class="bottom-nav">
     <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
@@ -536,20 +534,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
       <div class="nav-label">Profile</div>
     </div>
   </nav>
-
+ 
 </div><!-- /app -->
-
+ 
 <!-- ── LOADING ── -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="loading-text" id="loadingText">Locating…</div>
 </div>
-
+ 
 <!-- ── TOAST ── -->
 <div class="toast" id="toast"></div>
-
+ 
 <!-- ── MODALS ── -->
-
+ 
 <!-- Vessel Modal -->
 <div class="modal-overlay" id="vesselModal" onclick="closeModalOutside(event,'vesselModal')">
   <div class="modal">
@@ -580,7 +578,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
     </div>
   </div>
 </div>
-
+ 
 <!-- Contact Modal -->
 <div class="modal-overlay" id="contactModal" onclick="closeModalOutside(event,'contactModal')">
   <div class="modal">
@@ -610,7 +608,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
     </div>
   </div>
 </div>
-
+ 
 <!-- Help Modal -->
 <div class="modal-overlay" id="helpModal" onclick="closeModalOutside(event,'helpModal')">
   <div class="modal" style="position:relative">
@@ -644,7 +642,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
     </div>
   </div>
 </div>
-
+ 
 <!-- Delete Contact Modal -->
 <div class="modal-overlay" id="deleteModal" onclick="closeModalOutside(event,'deleteModal')">
   <div class="modal">
@@ -657,20 +655,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
     </div>
   </div>
 </div>
-
+ 
 <script>
 // ══════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════
-const BACKEND_URL = 'http://localhost:3000';
-
+const BACKEND_URL = 'https://volta-backend-production-5ddb.up.railway.app';
+ 
 const TYPE_CFG = {
   'SOS EMERGENCY':      { color:'#ff7c1f', bg:'rgba(255,124,42,.15)',  icon:'🚨', phone:'+233241111111' },
   'FIRE ALERT':         { color:'#ff3b3b', bg:'rgba(255,59,59,.15)',   icon:'🔥', phone:'+233242222222' },
   'MEDICAL EMERGENCY':  { color:'#2b7fff', bg:'rgba(43,127,255,.15)',  icon:'🚑', phone:'+233243333333' },
   'BOAT SINKING ALERT': { color:'#9b59f5', bg:'rgba(155,89,245,.15)', icon:'🚢', phone:'+233244444444' },
 };
-
+ 
 // ══════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════
@@ -680,12 +678,12 @@ let currentLon     = null;
 let gpsReady       = false;
 let obStep         = 0;
 let deleteTargetIdx = null;
-
+ 
 // Persisted vessel info
 let vessel = JSON.parse(localStorage.getItem('volta_vessel') || '{"boatId":"","vesselType":"Fishing Boat","pax":""}');
 let contacts = JSON.parse(localStorage.getItem('volta_contacts') || '[]');
 let alertHistory = JSON.parse(localStorage.getItem('volta_history') || '[]');
-
+ 
 // ══════════════════════════════════════════════════
 //  ONBOARDING
 // ══════════════════════════════════════════════════
@@ -701,14 +699,14 @@ function obNext() {
     finishOnboarding();
   }
 }
-
+ 
 function finishOnboarding() {
   localStorage.setItem('volta_onboarded', '1');
   document.getElementById('onboarding').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   initApp();
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  APP INIT
 // ══════════════════════════════════════════════════
@@ -727,7 +725,7 @@ function initApp() {
   renderHistory();
   updateBoatSummary();
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  GPS
 // ══════════════════════════════════════════════════
@@ -751,7 +749,7 @@ function startGPS() {
     badge.style.cssText = 'background:rgba(255,59,59,0.1);color:#ff6b6b;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:1px';
   }, { enableHighAccuracy: true, maximumAge: 10000 });
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  BACKEND STATUS
 // ══════════════════════════════════════════════════
@@ -770,7 +768,7 @@ async function checkBackend() {
     txt.textContent = 'Offline';
   }
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  ALERT TYPE SELECTION
 // ══════════════════════════════════════════════════
@@ -792,7 +790,7 @@ function selectType(type) {
   document.querySelector('.sos-ring').style.setProperty('--ring-color', cfg.color);
   if (navigator.vibrate) navigator.vibrate(20);
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  SEND ALERT
 // ══════════════════════════════════════════════════
@@ -802,13 +800,13 @@ async function sendAlert() {
     openModal('vesselModal');
     return;
   }
-
+ 
   const overlay = document.getElementById('loadingOverlay');
   const loadTxt = document.getElementById('loadingText');
-
+ 
   overlay.classList.add('show');
   loadTxt.textContent = 'Acquiring GPS…';
-
+ 
   // Ensure we have GPS
   let lat = currentLat, lon = currentLon;
   if (!gpsReady) {
@@ -825,14 +823,14 @@ async function sendAlert() {
       showToast('⚠️ GPS unavailable — demo location used');
     }
   }
-
+ 
   loadTxt.textContent = 'Sending alert…';
   const cfg  = TYPE_CFG[selectedType];
   const time = new Date().toLocaleString('en-GH', { dateStyle:'medium', timeStyle:'short' });
-
+ 
   // Notify custom contacts too
   const relevantContacts = contacts.filter(c => c.alertType === 'ALL' || c.alertType === selectedType);
-
+ 
   let alertId = null, smsSent = false;
   try {
     const res = await VoltaAuth.authFetch(`${BACKEND_URL}/api/alert/send`, {
@@ -855,15 +853,15 @@ async function sendAlert() {
   } catch (e) {
     console.warn('Backend offline, saving locally');
   }
-
+ 
   overlay.classList.remove('show');
-
+ 
   // Save to local history
   const entry = { type: selectedType, boatId: vessel.boatId, pax: vessel.pax,
     vesselType: vessel.vesselType, lat, lon, time, smsSent: smsSent || false, alertId };
   alertHistory.unshift(entry);
   localStorage.setItem('volta_history', JSON.stringify(alertHistory.slice(0,50)));
-
+ 
   // Show success
   const successEl = document.getElementById('sosSuccess');
   const successSub = document.getElementById('sosSuccessSub');
@@ -872,18 +870,18 @@ async function sendAlert() {
   successSub.textContent = smsSent
     ? `SMS sent · Alert #${alertId} · ${time}`
     : `Saved locally · ${time}`;
-
+ 
   renderHistory();
   if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
   setTimeout(() => successEl.classList.remove('visible'), 6000);
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  HISTORY
 // ══════════════════════════════════════════════════
 async function renderHistory() {
   const list = document.getElementById('historyList');
-
+ 
   // Try backend first
   try {
     const res = await VoltaAuth.authFetch(`${BACKEND_URL}/api/alert/history?limit=30`);
@@ -904,7 +902,7 @@ async function renderHistory() {
       }
     }
   } catch {}
-
+ 
   // Fallback to localStorage
   if (!alertHistory.length) {
     list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No alerts sent yet.</p></div>';
@@ -912,7 +910,7 @@ async function renderHistory() {
   }
   list.innerHTML = alertHistory.map(a => historyItemHTML(a)).join('');
 }
-
+ 
 function historyItemHTML(a) {
   const cfg = TYPE_CFG[a.type] || { color:'#888', bg:'rgba(136,136,136,.1)', icon:'⚠️' };
   const smsHtml = a.smsSent
@@ -927,7 +925,7 @@ function historyItemHTML(a) {
     <div class="h-time">${smsHtml}<br>${a.time || a.created_at || ''}</div>
   </div>`;
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  CONTACTS
 // ══════════════════════════════════════════════════
@@ -952,7 +950,7 @@ function renderContacts() {
     </div>
   `).join('');
 }
-
+ 
 function saveContact() {
   const name  = document.getElementById('m-contactName').value.trim();
   const phone = document.getElementById('m-contactPhone').value.trim();
@@ -966,13 +964,13 @@ function saveContact() {
   document.getElementById('m-contactPhone').value = '';
   showToast('✓ Contact saved');
 }
-
+ 
 function promptDeleteContact(i) {
   deleteTargetIdx = i;
   document.getElementById('deleteContactName').textContent = contacts[i].name;
   openModal('deleteModal');
 }
-
+ 
 function confirmDeleteContact() {
   if (deleteTargetIdx !== null) {
     contacts.splice(deleteTargetIdx, 1);
@@ -983,7 +981,7 @@ function confirmDeleteContact() {
   closeModal('deleteModal');
   showToast('Contact removed');
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  VESSEL
 // ══════════════════════════════════════════════════
@@ -996,7 +994,7 @@ function saveVessel() {
   closeModal('vesselModal');
   showToast('✓ Vessel details saved');
 }
-
+ 
 function updateBoatSummary() {
   document.getElementById('boatSummary').textContent = vessel.boatId
     ? `${vessel.boatId} · ${vessel.vesselType}`
@@ -1009,7 +1007,7 @@ function updateBoatSummary() {
   document.getElementById('m-vesselType').value = vessel.vesselType || 'Fishing Boat';
   document.getElementById('m-pax').value = vessel.pax || '';
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  TAB NAVIGATION
 // ══════════════════════════════════════════════════
@@ -1021,7 +1019,7 @@ function switchTab(tab) {
   if (tab === 'alerts') renderHistory();
   if (navigator.vibrate) navigator.vibrate(15);
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  MODALS
 // ══════════════════════════════════════════════════
@@ -1034,7 +1032,7 @@ function closeModal(id) {
 function closeModalOutside(e, id) {
   if (e.target === document.getElementById(id)) closeModal(id);
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  TOAST
 // ══════════════════════════════════════════════════
@@ -1044,7 +1042,7 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
-
+ 
 // ══════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════
@@ -1061,3 +1059,4 @@ if (_user) {
 </script>
 </body>
 </html>
+ 
