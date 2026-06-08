@@ -218,13 +218,21 @@ body {
     <p>Emergency Response System</p>
   </div>
  
-  <!-- Role selector -->
+  <!-- Mode selector -->
   <div class="role-tabs">
-    <div class="role-tab active" id="tab-responder" onclick="selectRole('responder')">
-      🚨 Responder
+    <div class="role-tab active" id="tab-login" onclick="selectMode('login')">
+      🔑 Sign In
     </div>
-    <div class="role-tab" id="tab-admin" onclick="selectRole('admin')">
-      📊 Admin
+    <div class="role-tab" id="tab-register" onclick="selectMode('register')">
+      ✨ Create Account
+    </div>
+  </div>
+ 
+  <!-- Register extra fields (hidden by default) -->
+  <div id="registerFields" style="display:none">
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" id="fullName" placeholder="Your full name" autocomplete="name">
     </div>
   </div>
  
@@ -257,7 +265,7 @@ body {
 // ══════════════════════════════════════════════
 //  CONFIG — update this when deployed
 // ══════════════════════════════════════════════
-const BACKEND_URL = 'https://volta-backend-production-5ddb.up.railway.app';
+const BACKEND_URL = 'http://localhost:3000';
  
 // Where to redirect after login
 const REDIRECT = {
@@ -350,8 +358,3 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
- 
-
-</body>
-</html>
- 
