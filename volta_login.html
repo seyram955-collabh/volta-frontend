@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#020c1b">
-<title>Volta Lake — Sign In</title>
+<title>Volta Lake -- Sign In</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#020c1b;--surface:#0a1628;--border:rgba(0,212,255,0.15);--cyan:#00d4ff;--teal:#00b4a0;--text:#e8f4ff;--muted:#4b6a8a;--error:#ff4444}
@@ -22,15 +22,14 @@ body{min-height:100vh;background:var(--bg);font-family:'Barlow',sans-serif;color
 .tabs{display:grid;grid-template-columns:1fr 1fr;background:rgba(0,0,0,0.3);border-radius:12px;padding:4px;margin-bottom:24px}
 .tab{padding:10px;text-align:center;cursor:pointer;border-radius:9px;font-size:12px;font-weight:600;letter-spacing:1px;color:var(--muted);transition:all .2s;text-transform:uppercase}
 .tab.active{background:rgba(0,212,255,0.12);color:var(--cyan);box-shadow:0 0 0 1px rgba(0,212,255,0.2)}
-.error{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.25);border-radius:10px;padding:12px 14px;font-size:13px;color:#ff8080;margin-bottom:16px;display:none;animation:shake .4s ease}
-.error.show{display:block}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.error-box{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.25);border-radius:10px;padding:12px 14px;font-size:13px;color:#ff8080;margin-bottom:16px;display:none}
+.error-box.show{display:block}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:10px;font-weight:600;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
 .field input{width:100%;padding:14px 16px;background:rgba(0,0,0,0.4);border:1px solid rgba(0,212,255,0.15);border-radius:12px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;outline:none;transition:border-color .2s}
 .field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,0.1)}
 .field input::placeholder{color:rgba(75,106,138,0.6)}
-.btn{width:100%;padding:16px;background:linear-gradient(135deg,#00b4a0,#0077cc);border:none;border-radius:14px;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:opacity .2s;margin-top:4px;position:relative;overflow:hidden}
+.btn{width:100%;padding:16px;background:linear-gradient(135deg,#00b4a0,#0077cc);border:none;border-radius:14px;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:opacity .2s;margin-top:4px}
 .btn:hover{opacity:.9}
 .btn:active{transform:scale(.98)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -46,17 +45,17 @@ body{min-height:100vh;background:var(--bg);font-family:'Barlow',sans-serif;color
 <div class="bg"></div>
 <div class="card">
   <div class="logo">
-    <span class="logo-icon">🚤</span>
+    <span class="logo-icon">&#x1F6A4;</span>
     <h1>Volta Lake</h1>
     <p>Emergency Response System</p>
   </div>
 
   <div class="tabs">
-    <div class="tab active" id="tab-login" onclick="switchTab('login')">🔑 Sign In</div>
-    <div class="tab" id="tab-register" onclick="switchTab('register')">✨ Create Account</div>
+    <div class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</div>
+    <div class="tab" id="tab-register" onclick="switchTab('register')">Create Account</div>
   </div>
 
-  <div class="error" id="errorMsg"></div>
+  <div class="error-box" id="errorMsg"></div>
 
   <div id="registerFields">
     <div class="field">
@@ -79,124 +78,135 @@ body{min-height:100vh;background:var(--bg);font-family:'Barlow',sans-serif;color
     <div class="spinner"></div>
   </button>
 
-  <div class="footer">Volta Lake Authority · Ghana · © 2026</div>
+  <div class="footer">Volta Lake Authority &middot; Ghana &middot; 2026</div>
 </div>
 
 <script>
-const BACKEND_URL = 'https://volta-backend-production-5ddb.up.railway.app';
-const REDIRECT = { responder: 'volta_mobile.html', admin: 'volta_admin.html' };
-let mode = 'login';
+var BACKEND_URL = 'https://volta-backend-production-5ddb.up.railway.app';
+var REDIRECT_MAP = { responder: 'volta_mobile.html', admin: 'volta_admin.html' };
+var currentMode = 'login';
 
-/* ── AUTH HELPERS (inline — no external volta-auth.js needed) ── */
-const VoltaAuth = {
-  getUser() {
-    try { return JSON.parse(localStorage.getItem('volta_user') || 'null'); } catch { return null; }
-  },
-  getToken() { return localStorage.getItem('volta_token'); },
-  isValid() {
-    const exp = Number(localStorage.getItem('volta_expires') || 0);
-    return !!this.getToken() && Date.now() < exp;
-  },
-  save(token, user) {
-    localStorage.setItem('volta_token', token);
-    localStorage.setItem('volta_user', JSON.stringify(user));
-    localStorage.setItem('volta_expires', Date.now() + 8 * 60 * 60 * 1000);
-  },
-  clear() {
-    ['volta_token','volta_user','volta_expires'].forEach(k => localStorage.removeItem(k));
-  },
-  async authFetch(url, opts = {}) {
-    const token = this.getToken();
-    const res = await fetch(url, {
-      ...opts,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: Bearer ${token} } : {}), ...(opts.headers || {}) }
-    });
-    if (res.status === 401) { this.clear(); window.location.href = 'volta_login.html'; return null; }
-    return res;
-  }
-};
+function getStoredUser() {
+  try { return JSON.parse(localStorage.getItem('volta_user') || 'null'); } catch(e) { return null; }
+}
+function getStoredToken() { return localStorage.getItem('volta_token') || ''; }
+function isSessionValid() {
+  var exp = parseInt(localStorage.getItem('volta_expires') || '0', 10);
+  return getStoredToken().length > 0 && Date.now() < exp;
+}
+function saveSession(token, user) {
+  localStorage.setItem('volta_token', token);
+  localStorage.setItem('volta_user', JSON.stringify(user));
+  localStorage.setItem('volta_expires', String(Date.now() + 8 * 60 * 60 * 1000));
+}
+function clearSession() {
+  localStorage.removeItem('volta_token');
+  localStorage.removeItem('volta_user');
+  localStorage.removeItem('volta_expires');
+}
 
 function switchTab(m) {
-  mode = m;
-  document.getElementById('tab-login').classList.toggle('active', m === 'login');
-  document.getElementById('tab-register').classList.toggle('active', m === 'register');
-  document.getElementById('registerFields').style.display = m === 'register' ? 'block' : 'none';
-  document.getElementById('btnText').textContent = m === 'login' ? 'Sign In' : 'Create Account';
+  currentMode = m;
+  var loginTab = document.getElementById('tab-login');
+  var regTab   = document.getElementById('tab-register');
+  var regFields = document.getElementById('registerFields');
+  var btnText   = document.getElementById('btnText');
+  if (m === 'login') {
+    loginTab.classList.add('active');
+    regTab.classList.remove('active');
+    regFields.style.display = 'none';
+    btnText.textContent = 'Sign In';
+  } else {
+    loginTab.classList.remove('active');
+    regTab.classList.add('active');
+    regFields.style.display = 'block';
+    btnText.textContent = 'Create Account';
+  }
   hideError();
 }
 
 function showError(msg) {
-  const el = document.getElementById('errorMsg');
+  var el = document.getElementById('errorMsg');
   el.textContent = msg;
   el.classList.add('show');
-  el.style.animation = 'none';
-  el.offsetHeight; // reflow
-  el.style.animation = '';
 }
-
 function hideError() {
   document.getElementById('errorMsg').classList.remove('show');
 }
 
-async function handleSubmit() {
+function handleSubmit() {
   hideError();
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const btn = document.getElementById('submitBtn');
+  var username = document.getElementById('username').value.trim();
+  var password = document.getElementById('password').value;
+  var btn = document.getElementById('submitBtn');
 
   if (!username || !password) { showError('Please enter username and password.'); return; }
 
   btn.disabled = true;
   btn.classList.add('loading');
 
-  try {
-    if (mode === 'register') {
-      const fullName = document.getElementById('fullName').value.trim();
-      if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
-
-      const res = await fetch(${BACKEND_URL}/api/auth/register, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, fullName })
-      });
-      const data = await res.json();
-      if (!data.success) { showError(data.error || 'Registration failed.'); return; }
-
-      VoltaAuth.save(data.token, data.user);
-      window.location.href = 'volta_mobile.html';
-
-    } else {
-      const res = await fetch(${BACKEND_URL}/api/auth/login, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      if (!data.success) { showError(data.error || 'Login failed.'); return; }
-
-      VoltaAuth.save(data.token, data.user);
-      window.location.href = REDIRECT[data.user.role] || 'volta_mobile.html';
-    }
-
-  } catch (e) {
-    showError('Cannot connect to server. Please check your connection.');
-  } finally {
-    btn.disabled = false;
-    btn.classList.remove('loading');
+  if (currentMode === 'register') {
+    doRegister(username, password, btn);
+  } else {
+    doLogin(username, password, btn);
   }
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
-
-/* ── Auto-redirect if already logged in ── */
-(function () {
-  if (VoltaAuth.isValid()) {
-    const user = VoltaAuth.getUser();
-    if (user) window.location.href = REDIRECT[user.role] || 'volta_mobile.html';
-  } else {
-    VoltaAuth.clear(); // wipe any stale / expired tokens to prevent 401s
+function doRegister(username, password, btn) {
+  var fullName = document.getElementById('fullName').value.trim();
+  if (password.length < 6) {
+    showError('Password must be at least 6 characters.');
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    return;
   }
-})();
+  var body = JSON.stringify({ username: username, password: password, fullName: fullName });
+  fetch(BACKEND_URL + '/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (!data.success) { showError(data.error || 'Registration failed.'); return; }
+    saveSession(data.token, data.user);
+    window.location.href = 'volta_mobile.html';
+  })
+  .catch(function() { showError('Cannot connect to server. Please check your connection.'); })
+  .finally(function() { btn.disabled = false; btn.classList.remove('loading'); });
+}
+
+function doLogin(username, password, btn) {
+  var body = JSON.stringify({ username: username, password: password });
+  fetch(BACKEND_URL + '/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (!data.success) { showError(data.error || 'Login failed.'); return; }
+    saveSession(data.token, data.user);
+    var dest = REDIRECT_MAP[data.user.role] || 'volta_mobile.html';
+    window.location.href = dest;
+  })
+  .catch(function() { showError('Cannot connect to server. Please check your connection.'); })
+  .finally(function() { btn.disabled = false; btn.classList.remove('loading'); });
+}
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSubmit(); });
+
+/* Auto-redirect if already logged in, clear stale tokens otherwise */
+(function() {
+  if (isSessionValid()) {
+    var user = getStoredUser();
+    if (user && user.role) {
+      window.location.href = REDIRECT_MAP[user.role] || 'volta_mobile.html';
+    }
+  } else {
+    clearSession();
+  }
+}());
 </script>
 </body>
 </html>
