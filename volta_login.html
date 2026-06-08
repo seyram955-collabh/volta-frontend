@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#020c1b">
+<title>Volta Lake — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #020c1b;
+  --surface: #0a1628;
+  --border:  rgba(0,212,255,0.15);
+  --cyan:    #00d4ff;
+  --teal:    #00b4a0;
+  --text:    #e8f4ff;
+  --muted:   #4b6a8a;
+  --error:   #ff4444;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'Barlow', sans-serif;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* ── Background ── */
+.bg-mesh {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 50%, rgba(0,180,160,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 85% 50%, rgba(0,100,200,0.12) 0%, transparent 60%),
+    linear-gradient(160deg, #020c1b 0%, #071422 100%);
+}
+
+.grid-lines {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* ── Animated rings ── */
+.ring {
+  position: fixed; border-radius: 50%;
+  border: 1px solid rgba(0,212,255,0.06);
+  animation: ring-breathe 6s ease-in-out infinite;
+  z-index: 0;
+}
+.ring:nth-child(1) { width:600px;height:600px; top:50%;left:50%; transform:translate(-50%,-50%); }
+.ring:nth-child(2) { width:400px;height:400px; top:50%;left:50%; transform:translate(-50%,-50%); animation-delay:2s; }
+.ring:nth-child(3) { width:200px;height:200px; top:50%;left:50%; transform:translate(-50%,-50%); animation-delay:4s; }
+@keyframes ring-breathe {
+  0%,100%{ opacity:.4; transform:translate(-50%,-50%) scale(1); }
+  50%{ opacity:.1; transform:translate(-50%,-50%) scale(1.04); }
+}
+
+/* ── Card ── */
+.card {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 420px;
+  background: rgba(10,22,40,0.8);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 36px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+  animation: card-in .5s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes card-in {
+  from { opacity:0; transform:translateY(24px) scale(.97); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+
+/* ── Header ── */
+.logo {
+  text-align: center; margin-bottom: 32px;
+}
+.logo-icon {
+  font-size: 44px; display: block;
+  animation: bob 4s ease-in-out infinite;
+  margin-bottom: 12px;
+}
+@keyframes bob {
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)}
+}
+.logo h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  background: linear-gradient(135deg, #fff 0%, var(--cyan) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.logo p {
+  font-size: 11px; letter-spacing: 3px; color: var(--muted);
+  text-transform: uppercase; margin-top: 6px;
+}
+
+/* ── Role tabs ── */
+.role-tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px; padding: 4px;
+  margin-bottom: 28px;
+}
+.role-tab {
+  padding: 10px; text-align: center; cursor: pointer;
+  border-radius: 9px; font-size: 12px; font-weight: 600;
+  letter-spacing: 1px; color: var(--muted); transition: all .2s;
+  text-transform: uppercase;
+}
+.role-tab.active {
+  background: rgba(0,212,255,0.12);
+  color: var(--cyan);
+  box-shadow: 0 0 0 1px rgba(0,212,255,0.2);
+}
+
+/* ── Form ── */
+.field { margin-bottom: 18px; }
+.field label {
+  display: block; font-size: 10px; font-weight: 600;
+  letter-spacing: 2px; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 7px;
+}
+.field input {
+  width: 100%; padding: 14px 16px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 12px; color: var(--text);
+  font-family: 'Barlow', sans-serif; font-size: 15px;
+  outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.field input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+}
+.field input::placeholder { color: rgba(75,106,138,0.6); }
+
+/* ── Error message ── */
+.error-msg {
+  background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.25);
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 13px; color: #ff8080;
+  margin-bottom: 18px; display: none;
+  animation: shake .4s ease;
+}
+.error-msg.visible { display: block; }
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+
+/* ── Submit button ── */
+.btn-login {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, #00b4a0, #0077cc);
+  border: none; border-radius: 14px;
+  color: #fff; font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: opacity .2s, transform .15s;
+  margin-top: 4px; position: relative; overflow: hidden;
+}
+.btn-login:hover { opacity: .9; }
+.btn-login:active { transform: scale(.98); }
+.btn-login:disabled { opacity: .5; cursor: not-allowed; }
+.btn-login.loading::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Spinner inside button ── */
+.btn-spinner {
+  display: none; width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.btn-login.loading .btn-text { display: none; }
+.btn-login.loading .btn-spinner { display: block; }
+
+/* ── Footer ── */
+.card-footer {
+  text-align: center; margin-top: 24px;
+  font-size: 11px; color: var(--muted); letter-spacing: 1px;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="grid-lines"></div>
+<div class="ring"></div>
+<div class="ring"></div>
+<div class="ring"></div>
+
+<div class="card">
+  <div class="logo">
+    <span class="logo-icon">🚤</span>
+    <h1>Volta Lake</h1>
+    <p>Emergency Response System</p>
+  </div>
+
+  <!-- Role selector -->
+  <div class="role-tabs">
+    <div class="role-tab active" id="tab-responder" onclick="selectRole('responder')">
+      🚨 Responder
+    </div>
+    <div class="role-tab" id="tab-admin" onclick="selectRole('admin')">
+      📊 Admin
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- Form -->
+  <div class="field">
+    <label>Username</label>
+    <input type="text" id="username" placeholder="Enter your username"
+      autocomplete="username" autocapitalize="none" spellcheck="false">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Enter your password"
+      autocomplete="current-password">
+  </div>
+
+  <button class="btn-login" id="loginBtn" onclick="doLogin()">
+    <span class="btn-text">Sign In</span>
+    <div class="btn-spinner"></div>
+  </button>
+
+  <div class="card-footer">
+    Volta Lake Authority &nbsp;·&nbsp; Ghana &nbsp;·&nbsp; © 2026
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONFIG — update this when deployed
+// ══════════════════════════════════════════════
+const BACKEND_URL = 'http://localhost:3000';
+
+// Where to redirect after login
+const REDIRECT = {
+  responder: 'volta_mobile.html',
+  admin:     'volta_admin.html',
+};
+
+let selectedRole = 'responder';
+
+// ── Role tabs ──────────────────────────────────
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('tab-responder').classList.toggle('active', role === 'responder');
+  document.getElementById('tab-admin').classList.toggle('active', role === 'admin');
+}
+
+// ── Show error ─────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+  // Re-trigger shake
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+function clearError() {
+  document.getElementById('errorMsg').classList.remove('visible');
+}
+
+// ── Login ──────────────────────────────────────
+async function doLogin() {
+  clearError();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('loginBtn');
+
+  if (!username || !password) {
+    showError('Please enter your username and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  try {
+    const res  = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      showError(data.error || 'Login failed. Please try again.');
+      return;
+    }
+
+    // Store token and user info
+    localStorage.setItem('volta_token',    data.token);
+    localStorage.setItem('volta_user',     JSON.stringify(data.user));
+    localStorage.setItem('volta_expires',  Date.now() + (8 * 60 * 60 * 1000));
+
+    // Redirect based on role
+    const target = REDIRECT[data.user.role] || REDIRECT.responder;
+    window.location.href = target;
+
+  } catch (err) {
+    showError('Cannot connect to server. Please check your connection.');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+}
+
+// ── Enter key support ──────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ── Redirect if already logged in ─────────────
+(function checkExistingSession() {
+  const token   = localStorage.getItem('volta_token');
+  const expires = localStorage.getItem('volta_expires');
+  const user    = JSON.parse(localStorage.getItem('volta_user') || 'null');
+  if (token && expires && Date.now() < Number(expires) && user) {
+    window.location.href = REDIRECT[user.role] || REDIRECT.responder;
+  }
+})();
+</script>
+</body>
+</html>

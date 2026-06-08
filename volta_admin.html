@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volta Lake — Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="volta-auth.js"></script>
+<style>
+:root {
+  --bg:       #06080f;
+  --surface:  #0d1117;
+  --panel:    #111827;
+  --border:   rgba(255,255,255,0.07);
+  --cyan:     #00e5ff;
+  --teal:     #00c49a;
+  --orange:   #ff7c2a;
+  --red:      #ff3b3b;
+  --blue:     #3b82f6;
+  --purple:   #a78bfa;
+  --text:     #e2e8f0;
+  --muted:    #4b5563;
+  --syne:     'Syne', sans-serif;
+  --mono:     'DM Mono', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:var(--syne); }
+
+/* ── LAYOUT ── */
+.shell {
+  display:grid;
+  grid-template-rows: 56px 1fr;
+  grid-template-columns: 220px 1fr;
+  height:100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  grid-column: 1/-1;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 24px; gap:16px;
+}
+.topbar-logo {
+  font-size:15px; font-weight:800; letter-spacing:2px;
+  text-transform:uppercase; color:#fff;
+  display:flex; align-items:center; gap:10px;
+}
+.topbar-logo span { font-size:20px; }
+.topbar-sep { flex:1; }
+.live-badge {
+  display:flex; align-items:center; gap:7px;
+  background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2);
+  border-radius:20px; padding:5px 14px;
+  font-size:11px; font-weight:600; letter-spacing:2px; color:var(--cyan);
+  font-family:var(--mono);
+}
+.live-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--cyan);
+  animation:livepulse 1.5s infinite;
+}
+@keyframes livepulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(0,229,255,.5)}
+  50%{box-shadow:0 0 0 6px rgba(0,229,255,0)}
+}
+.refresh-info {
+  font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:1px;
+}
+#countdown { color:var(--cyan); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  padding:20px 0; overflow-y:auto;
+  display:flex; flex-direction:column; gap:4px;
+}
+.nav-section {
+  font-size:9px; font-weight:700; letter-spacing:3px;
+  color:var(--muted); padding:16px 20px 6px; text-transform:uppercase;
+}
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 20px; cursor:pointer;
+  font-size:13px; font-weight:600; color:var(--muted);
+  border-left:3px solid transparent;
+  transition:all .2s;
+}
+.nav-item:hover { color:var(--text); background:rgba(255,255,255,.03); }
+.nav-item.active { color:var(--cyan); border-left-color:var(--cyan); background:rgba(0,229,255,.05); }
+.nav-icon { font-size:16px; width:20px; text-align:center; }
+
+.sidebar-stats {
+  margin-top:auto; padding:16px;
+  background:rgba(0,229,255,.04); border-top:1px solid var(--border);
+}
+.sidebar-stat { margin-bottom:10px; }
+.sidebar-stat-label { font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; font-family:var(--mono); }
+.sidebar-stat-val { font-size:20px; font-weight:800; color:var(--cyan); font-family:var(--mono); }
+
+/* ── MAIN ── */
+.main {
+  overflow-y:auto; padding:24px;
+  display:flex; flex-direction:column; gap:20px;
+}
+
+/* ── VIEWS ── */
+.view { display:none; flex-direction:column; gap:20px; }
+.view.active { display:flex; }
+
+/* ── STAT CARDS ── */
+.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.stat-card {
+  background:var(--panel); border:1px solid var(--border); border-radius:16px;
+  padding:20px; position:relative; overflow:hidden;
+  transition:border-color .2s;
+}
+.stat-card:hover { border-color:rgba(255,255,255,.14); }
+.stat-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+}
+.stat-card.c-cyan::before { background:var(--cyan); }
+.stat-card.c-orange::before { background:var(--orange); }
+.stat-card.c-red::before { background:var(--red); }
+.stat-card.c-teal::before { background:var(--teal); }
+.stat-label { font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; font-family:var(--mono); }
+.stat-val { font-size:36px; font-weight:800; margin:6px 0 2px; line-height:1; }
+.stat-sub { font-size:11px; color:var(--muted); font-family:var(--mono); }
+.stat-icon { position:absolute; top:16px; right:16px; font-size:24px; opacity:.25; }
+
+/* ── GRID LAYOUTS ── */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.grid-3-1 { display:grid; grid-template-columns:3fr 2fr; gap:20px; }
+
+/* ── PANEL ── */
+.pane {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:16px; overflow:hidden;
+}
+.pane-header {
+  padding:16px 20px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.pane-title {
+  font-size:12px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--text);
+}
+.pane-body { padding:20px; }
+
+/* ── MAP ── */
+#alertMap { height:420px; width:100%; border-radius:0; }
+.leaflet-container { background:#0a0e1a !important; }
+
+/* ── CHART ── */
+.chart-wrap { position:relative; height:220px; }
+
+/* ── TABLE ── */
+.alert-table { width:100%; border-collapse:collapse; font-size:13px; }
+.alert-table th {
+  text-align:left; padding:10px 14px;
+  font-size:9px; letter-spacing:2px; color:var(--muted);
+  text-transform:uppercase; font-family:var(--mono);
+  border-bottom:1px solid var(--border);
+}
+.alert-table td {
+  padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.03);
+  vertical-align:middle;
+}
+.alert-table tr:last-child td { border-bottom:none; }
+.alert-table tr:hover td { background:rgba(255,255,255,.02); }
+.type-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 10px; border-radius:6px; font-size:10px;
+  font-weight:700; letter-spacing:.5px; white-space:nowrap;
+}
+.sms-ok  { color:var(--teal); font-family:var(--mono); font-size:11px; }
+.sms-fail{ color:var(--red);  font-family:var(--mono); font-size:11px; }
+.sms-pend{ color:var(--muted);font-family:var(--mono); font-size:11px; }
+.coords  { font-family:var(--mono); font-size:11px; color:var(--muted); }
+.map-link { color:var(--cyan); text-decoration:none; font-size:11px; }
+.map-link:hover { text-decoration:underline; }
+.table-wrap { overflow-x:auto; max-height:420px; overflow-y:auto; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+.filter-btn {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; padding:6px 14px; cursor:pointer;
+  font-size:11px; font-weight:600; color:var(--muted);
+  font-family:var(--syne); transition:all .2s; letter-spacing:.5px;
+}
+.filter-btn:hover { border-color:rgba(255,255,255,.2); color:var(--text); }
+.filter-btn.active { border-color:var(--cyan); color:var(--cyan); background:rgba(0,229,255,.07); }
+.search-input {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; padding:6px 14px; color:var(--text);
+  font-family:var(--mono); font-size:12px; outline:none; margin-left:auto;
+  width:200px; transition:border-color .2s;
+}
+.search-input:focus { border-color:rgba(0,229,255,.4); }
+.search-input::placeholder { color:var(--muted); }
+
+/* ── EMPTY ── */
+.empty { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--muted); border-radius:3px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .shell { grid-template-columns:1fr; grid-template-rows:56px auto 1fr; }
+  .sidebar { display:none; }
+  .stat-row { grid-template-columns:1fr 1fr; }
+  .grid-2,.grid-3-1 { grid-template-columns:1fr; }
+}
+
+/* ── ALERT FLICKER on new data ── */
+@keyframes newrow {
+  0%   { background:rgba(0,229,255,.12); }
+  100% { background:transparent; }
+}
+.new-row td { animation:newrow 1.5s ease; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo"><span>🚤</span> VOLTA LAKE COMMAND</div>
+    <div class="topbar-sep"></div>
+    <div id="userBadge" style="display:flex;align-items:center"></div>
+    <div style="width:16px"></div>
+    <div class="refresh-info">AUTO-REFRESH IN <span id="countdown">30</span>s</div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section">Views</div>
+    <div class="nav-item active" onclick="switchView('overview')">
+      <span class="nav-icon">📊</span> Overview
+    </div>
+    <div class="nav-item" onclick="switchView('map')">
+      <span class="nav-icon">🗺️</span> Alert Map
+    </div>
+    <div class="nav-item" onclick="switchView('history')">
+      <span class="nav-icon">📋</span> History
+    </div>
+
+    <div class="nav-section">System</div>
+    <div class="nav-item" id="connStatus">
+      <span class="nav-icon">🔌</span> <span id="connLabel">Connecting...</span>
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Total Alerts</div>
+        <div class="sidebar-stat-val" id="sb-total">—</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Today</div>
+        <div class="sidebar-stat-val" id="sb-today">—</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ── OVERVIEW VIEW ── -->
+    <div class="view active" id="view-overview">
+
+      <div class="stat-row">
+        <div class="stat-card c-cyan">
+          <div class="stat-label">Total Alerts</div>
+          <div class="stat-val" id="s-total">—</div>
+          <div class="stat-sub">All time</div>
+          <div class="stat-icon">📡</div>
+        </div>
+        <div class="stat-card c-orange">
+          <div class="stat-label">Today</div>
+          <div class="stat-val" id="s-today">—</div>
+          <div class="stat-sub">Since midnight</div>
+          <div class="stat-icon">🕐</div>
+        </div>
+        <div class="stat-card c-red">
+          <div class="stat-label">SOS / Sinking</div>
+          <div class="stat-val" id="s-critical">—</div>
+          <div class="stat-sub">High priority</div>
+          <div class="stat-icon">🚨</div>
+        </div>
+        <div class="stat-card c-teal">
+          <div class="stat-label">SMS Delivery</div>
+          <div class="stat-val" id="s-sms">—%</div>
+          <div class="stat-sub">Success rate</div>
+          <div class="stat-icon">📱</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="pane">
+          <div class="pane-header">
+            <div class="pane-title">Alerts by Type</div>
+          </div>
+          <div class="pane-body">
+            <div class="chart-wrap"><canvas id="typeChart"></canvas></div>
+          </div>
+        </div>
+        <div class="pane">
+          <div class="pane-header">
+            <div class="pane-title">Alerts Over Time (Last 7 Days)</div>
+          </div>
+          <div class="pane-body">
+            <div class="chart-wrap"><canvas id="timeChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane">
+        <div class="pane-header">
+          <div class="pane-title">Recent Alerts</div>
+        </div>
+        <div class="table-wrap">
+          <table class="alert-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Type</th><th>Boat</th><th>Passenger</th>
+                <th>Pax</th><th>Coordinates</th><th>SMS</th><th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="overviewTable"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MAP VIEW ── -->
+    <div class="view" id="view-map">
+      <div class="pane">
+        <div class="pane-header">
+          <div class="pane-title">Live Alert Map — Volta Lake, Ghana</div>
+          <div style="font-size:11px;color:var(--muted);font-family:var(--mono)" id="mapCount">0 alerts plotted</div>
+        </div>
+        <div id="alertMap"></div>
+      </div>
+      <div class="pane">
+        <div class="pane-header"><div class="pane-title">Map Legend</div></div>
+        <div class="pane-body" style="display:flex;gap:20px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+            <div style="width:14px;height:14px;border-radius:50%;background:#ff7c2a"></div> SOS Emergency
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+            <div style="width:14px;height:14px;border-radius:50%;background:#ff3b3b"></div> Fire Alert
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+            <div style="width:14px;height:14px;border-radius:50%;background:#3b82f6"></div> Medical Emergency
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+            <div style="width:14px;height:14px;border-radius:50%;background:#a78bfa"></div> Boat Sinking
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY VIEW ── -->
+    <div class="view" id="view-history">
+      <div class="pane">
+        <div class="pane-header">
+          <div class="pane-title">Full Alert History</div>
+        </div>
+        <div class="pane-body" style="padding-bottom:12px">
+          <div class="filter-bar">
+            <button class="filter-btn active" onclick="setFilter('ALL',this)">All</button>
+            <button class="filter-btn" onclick="setFilter('SOS EMERGENCY',this)">🚨 SOS</button>
+            <button class="filter-btn" onclick="setFilter('FIRE ALERT',this)">🔥 Fire</button>
+            <button class="filter-btn" onclick="setFilter('MEDICAL EMERGENCY',this)">⚕️ Medical</button>
+            <button class="filter-btn" onclick="setFilter('BOAT SINKING ALERT',this)">🚢 Sinking</button>
+            <input class="search-input" id="searchInput" placeholder="Search boat / passenger..." oninput="renderHistory()">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="alert-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Type</th><th>Boat</th><th>Vessel</th>
+                <th>Passenger</th><th>Pax</th><th>Coordinates</th><th>SMS</th><th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable"><tr><td colspan="9" class="empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+const BACKEND_URL   = 'http://localhost:3000';
+const REFRESH_SECS  = 30;
+
+const TYPE_CFG = {
+  'SOS EMERGENCY':      { color:'#ff7c2a', bg:'rgba(255,124,42,.15)',  icon:'🚨' },
+  'FIRE ALERT':         { color:'#ff3b3b', bg:'rgba(255,59,59,.15)',   icon:'🔥' },
+  'MEDICAL EMERGENCY':  { color:'#3b82f6', bg:'rgba(59,130,246,.15)',  icon:'⚕️' },
+  'BOAT SINKING ALERT': { color:'#a78bfa', bg:'rgba(167,139,250,.15)', icon:'🚢' },
+};
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let allAlerts    = [];
+let statsData    = {};
+let activeFilter = 'ALL';
+let typeChart, timeChart, leafletMap, markersLayer;
+let countdown    = REFRESH_SECS;
+let previousCount = 0;
+
+// ═══════════════════════════════════════════════
+//  VIEWS
+// ═══════════════════════════════════════════════
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'map') setTimeout(initMap, 50);
+}
+
+// ═══════════════════════════════════════════════
+//  FETCH DATA
+// ═══════════════════════════════════════════════
+async function fetchAll() {
+  try {
+    const [alertsRes, statsRes] = await Promise.all([
+      VoltaAuth.authFetch(`${BACKEND_URL}/api/alert/history?limit=200`),
+      VoltaAuth.authFetch(`${BACKEND_URL}/api/alert/stats`)
+    ]);
+    if (!alertsRes || !statsRes) return; // authFetch redirected to login
+
+    const alertsJson = await alertsRes.json();
+    const statsJson  = await statsRes.json();
+
+    if (alertsJson.success) {
+      const isNew = alertsJson.alerts.length > previousCount;
+      previousCount = alertsJson.alerts.length;
+      allAlerts = alertsJson.alerts;
+      if (isNew) flashNewData();
+    }
+    if (statsJson.success) statsData = statsJson;
+
+    setConnected(true);
+    renderAll();
+  } catch(e) {
+    setConnected(false);
+    console.warn('Backend unreachable:', e.message);
+    renderDemoData();
+  }
+}
+
+function flashNewData() {
+  document.querySelectorAll('#overviewTable tr:first-child td, #historyTable tr:first-child td')
+    .forEach(td => td.parentElement.classList.add('new-row'));
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════
+function renderAll() {
+  renderStats();
+  renderOverviewTable();
+  renderHistory();
+  renderCharts();
+  renderMap();
+}
+
+// ═══════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════
+function renderStats() {
+  const total   = statsData.total  || allAlerts.length;
+  const today   = statsData.today  || 0;
+  const byType  = statsData.byType || [];
+
+  const critical = byType
+    .filter(b => b.type === 'SOS EMERGENCY' || b.type === 'BOAT SINKING ALERT')
+    .reduce((s,b) => s + b.count, 0);
+
+  const smsSent = allAlerts.filter(a => a.sms_status === 'sent').length;
+  const smsRate = allAlerts.length ? Math.round(smsSent / allAlerts.length * 100) : 0;
+
+  setText('s-total',    total);
+  setText('s-today',    today);
+  setText('s-critical', critical || '—');
+  setText('s-sms',      allAlerts.length ? smsRate + '%' : '—');
+  setText('sb-total',   total);
+  setText('sb-today',   today);
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ═══════════════════════════════════════════════
+//  OVERVIEW TABLE
+// ═══════════════════════════════════════════════
+function renderOverviewTable() {
+  const tbody = document.getElementById('overviewTable');
+  const rows  = allAlerts.slice(0,10);
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="8" class="empty">No alerts yet.</td></tr>`; return; }
+  tbody.innerHTML = rows.map(a => rowHtml(a, false)).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  HISTORY TABLE
+// ═══════════════════════════════════════════════
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+function renderHistory() {
+  const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const tbody  = document.getElementById('historyTable');
+  let rows = allAlerts;
+  if (activeFilter !== 'ALL') rows = rows.filter(a => a.type === activeFilter);
+  if (search) rows = rows.filter(a =>
+    (a.boat_id||'').toLowerCase().includes(search) ||
+    (a.passenger||'').toLowerCase().includes(search)
+  );
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="9" class="empty">No alerts match.</td></tr>`; return; }
+  tbody.innerHTML = rows.map(a => rowHtml(a, true)).join('');
+}
+
+function rowHtml(a, full) {
+  const cfg   = TYPE_CFG[a.type] || { color:'#888', bg:'rgba(136,136,136,.1)', icon:'⚠️' };
+  const badge = `<span class="type-badge" style="background:${cfg.bg};color:${cfg.color}">${cfg.icon} ${a.type}</span>`;
+  const sms   = a.sms_status === 'sent'
+    ? `<span class="sms-ok">✓ SENT</span>`
+    : a.sms_status === 'failed'
+    ? `<span class="sms-fail">✗ FAIL</span>`
+    : `<span class="sms-pend">⏳ —</span>`;
+  const coords = `<span class="coords">${Number(a.latitude).toFixed(4)}, ${Number(a.longitude).toFixed(4)}</span>`;
+  const mlink  = `<a class="map-link" href="https://maps.google.com/?q=${a.latitude},${a.longitude}" target="_blank">📍</a>`;
+
+  if (full) return `<tr>
+    <td style="font-family:var(--mono);color:var(--muted);font-size:11px">#${a.id}</td>
+    <td>${badge}</td>
+    <td style="font-weight:600">${a.boat_id}</td>
+    <td style="color:var(--muted);font-size:12px">${a.vessel_type||'—'}</td>
+    <td>${a.passenger}</td>
+    <td style="font-family:var(--mono);font-size:12px">${a.pax_count||'—'}</td>
+    <td>${coords} ${mlink}</td>
+    <td>${sms}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${a.created_at}</td>
+  </tr>`;
+
+  return `<tr>
+    <td style="font-family:var(--mono);color:var(--muted);font-size:11px">#${a.id}</td>
+    <td>${badge}</td>
+    <td style="font-weight:600">${a.boat_id}</td>
+    <td>${a.passenger}</td>
+    <td style="font-family:var(--mono);font-size:12px">${a.pax_count||'—'}</td>
+    <td>${coords} ${mlink}</td>
+    <td>${sms}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${a.created_at}</td>
+  </tr>`;
+}
+
+// ═══════════════════════════════════════════════
+//  CHARTS
+// ═══════════════════════════════════════════════
+function renderCharts() {
+  renderTypeChart();
+  renderTimeChart();
+}
+
+function renderTypeChart() {
+  const byType = statsData.byType || [];
+  const labels = byType.map(b => b.type.replace(' ALERT','').replace(' EMERGENCY',''));
+  const values = byType.map(b => b.count);
+  const colors = byType.map(b => (TYPE_CFG[b.type]||{color:'#888'}).color);
+
+  if (typeChart) typeChart.destroy();
+  typeChart = new Chart(document.getElementById('typeChart'), {
+    type: 'doughnut',
+    data: { labels, datasets:[{ data:values, backgroundColor:colors, borderWidth:0, hoverOffset:6 }] },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'right', labels:{ color:'#94a3b8', font:{family:'DM Mono',size:11}, boxWidth:12, padding:14 } },
+        tooltip:{ callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw} alerts` } }
+      }
+    }
+  });
+}
+
+function renderTimeChart() {
+  // Build last 7 days from alert data
+  const days = [];
+  for (let i=6; i>=0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    days.push(d.toISOString().slice(0,10));
+  }
+  const types   = Object.keys(TYPE_CFG);
+  const datasets = types.map(t => ({
+    label: t.replace(' ALERT','').replace(' EMERGENCY',''),
+    data: days.map(day => allAlerts.filter(a => a.created_at && a.created_at.startsWith(day) && a.type === t).length),
+    borderColor: TYPE_CFG[t].color,
+    backgroundColor: TYPE_CFG[t].color + '22',
+    borderWidth: 2, fill:true, tension:.4, pointRadius:3
+  }));
+
+  if (timeChart) timeChart.destroy();
+  timeChart = new Chart(document.getElementById('timeChart'), {
+    type: 'line',
+    data: { labels: days.map(d => d.slice(5)), datasets },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      scales:{
+        x:{ ticks:{color:'#4b5563',font:{family:'DM Mono',size:10}}, grid:{color:'rgba(255,255,255,.04)'} },
+        y:{ ticks:{color:'#4b5563',font:{family:'DM Mono',size:10},stepSize:1}, grid:{color:'rgba(255,255,255,.04)'}, beginAtZero:true }
+      },
+      plugins:{ legend:{ labels:{ color:'#94a3b8', font:{family:'DM Mono',size:10}, boxWidth:10, padding:12 } } }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  MAP
+// ═══════════════════════════════════════════════
+function initMap() {
+  if (leafletMap) { renderMap(); return; }
+  leafletMap = L.map('alertMap', { zoomControl:true }).setView([7.0, 0.0], 8);
+
+  // Dark tile layer
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'© OpenStreetMap © CARTO', maxZoom:18
+  }).addTo(leafletMap);
+
+  markersLayer = L.layerGroup().addTo(leafletMap);
+  renderMap();
+}
+
+function renderMap() {
+  if (!leafletMap || !markersLayer) return;
+  markersLayer.clearLayers();
+
+  const valid = allAlerts.filter(a => a.latitude && a.longitude);
+  setText('mapCount', `${valid.length} alert${valid.length!==1?'s':''} plotted`);
+
+  valid.forEach(a => {
+    const cfg   = TYPE_CFG[a.type] || { color:'#888', icon:'⚠️' };
+    const marker = L.circleMarker([a.latitude, a.longitude], {
+      radius:8, fillColor:cfg.color, color:'#fff',
+      weight:1.5, opacity:.9, fillOpacity:.85
+    });
+    marker.bindPopup(`
+      <div style="font-family:Syne,sans-serif;font-size:12px;min-width:160px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px">${cfg.icon} ${a.type}</div>
+        <div><b>Boat:</b> ${a.boat_id}</div>
+        <div><b>Passenger:</b> ${a.passenger}</div>
+        <div><b>Pax:</b> ${a.pax_count||'—'}</div>
+        <div><b>Time:</b> ${a.created_at}</div>
+        <div style="margin-top:6px">
+          <a href="https://maps.google.com/?q=${a.latitude},${a.longitude}" target="_blank"
+             style="color:#00e5ff">📍 Google Maps</a>
+        </div>
+      </div>
+    `);
+    marker.addTo(markersLayer);
+  });
+
+  // Fit map to markers if any
+  if (valid.length) {
+    const bounds = valid.map(a => [a.latitude, a.longitude]);
+    leafletMap.fitBounds(bounds, { padding:[40,40], maxZoom:12 });
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  CONNECTION STATUS
+// ═══════════════════════════════════════════════
+function setConnected(ok) {
+  const el  = document.getElementById('connStatus');
+  const lbl = document.getElementById('connLabel');
+  if (ok) {
+    el.style.color  = 'var(--teal)';
+    lbl.textContent = 'Backend Online';
+  } else {
+    el.style.color  = 'var(--red)';
+    lbl.textContent = 'Backend Offline';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  DEMO DATA (when backend is offline)
+// ═══════════════════════════════════════════════
+function renderDemoData() {
+  allAlerts = [
+    { id:1, type:'SOS EMERGENCY',      boat_id:'VL-101', passenger:'Kofi Mensah',  pax_count:'8',  vessel_type:'Fishing Boat',     latitude:6.82, longitude:0.14, sms_status:'sent',   created_at:'Demo data' },
+    { id:2, type:'FIRE ALERT',         boat_id:'VL-204', passenger:'Ama Asante',   pax_count:'3',  vessel_type:'Speedboat',        latitude:7.10, longitude:-0.05,sms_status:'sent',   created_at:'Demo data' },
+    { id:3, type:'MEDICAL EMERGENCY',  boat_id:'VL-309', passenger:'Yaw Darko',    pax_count:'12', vessel_type:'Ferry',            latitude:6.55, longitude:0.22, sms_status:'failed', created_at:'Demo data' },
+    { id:4, type:'BOAT SINKING ALERT', boat_id:'VL-417', passenger:'Abena Owusu',  pax_count:'6',  vessel_type:'Passenger Canoe',  latitude:6.98, longitude:0.08, sms_status:'sent',   created_at:'Demo data' },
+    { id:5, type:'SOS EMERGENCY',      boat_id:'VL-523', passenger:'Kwame Boateng',pax_count:'4',  vessel_type:'Cargo Vessel',     latitude:7.25, longitude:-0.12,sms_status:'sent',   created_at:'Demo data' },
+  ];
+  statsData = {
+    total:5, today:2,
+    byType:[
+      {type:'SOS EMERGENCY',4:2},
+      {type:'FIRE ALERT',count:1},
+      {type:'MEDICAL EMERGENCY',count:1},
+      {type:'BOAT SINKING ALERT',count:1}
+    ]
+  };
+  // Fix demo byType
+  statsData.byType = [
+    {type:'SOS EMERGENCY',count:2},
+    {type:'FIRE ALERT',count:1},
+    {type:'MEDICAL EMERGENCY',count:1},
+    {type:'BOAT SINKING ALERT',count:1}
+  ];
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════
+//  AUTO-REFRESH COUNTDOWN
+// ═══════════════════════════════════════════════
+setInterval(() => {
+  countdown--;
+  const el = document.getElementById('countdown');
+  if (el) el.textContent = countdown;
+  if (countdown <= 0) {
+    countdown = REFRESH_SECS;
+    fetchAll();
+  }
+}, 1000);
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+const currentUser = VoltaAuth.guard(['admin']);
+if (currentUser) {
+  VoltaAuth.renderUserBadge('userBadge');
+  fetchAll();
+}
+</script>
+</body>
+</html>
